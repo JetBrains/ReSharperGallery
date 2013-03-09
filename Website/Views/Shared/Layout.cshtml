@@ -5,7 +5,7 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         @RenderSection("OpenGraph", required: false)
-        <title>NuGet Gallery @(String.IsNullOrWhiteSpace(ViewBag.Title) ? "" : "| " + ViewBag.Title)</title>
+        <title>ReSharper Gallery @(String.IsNullOrWhiteSpace(ViewBag.Title) ? "" : "| " + ViewBag.Title)</title>
         <link href="@Url.Content("~/Content/site.css")" rel="stylesheet" />
         <link href="@Url.Content("~/favicon.ico")" rel="shortcut icon" type="image/x-icon" />
         <script src="@Url.Content("~/Scripts/modernizr-2.0.6-development-only.js")"></script>
@@ -17,7 +17,7 @@
     <body>
         <div id="content-wrapper">
             <header class="main">
-                <div id="logo"><a href="@Url.Home()">NuGet Gallery</a></div>
+                <div id="logo"><a href="@Url.Home()">ReSharper Gallery</a></div>
                 @Html.Partial(MVC.Shared.Views.UserDisplay)
             </header>
             <nav class="main">
@@ -35,8 +35,6 @@
                     {
                         <li class="@statisticsClass"><a href="@Url.Statistics()">Statistics</a></li>
                     }
-                    <li><a href="http://docs.nuget.org">Documentation</a></li>
-                    <li><a href="http://blog.nuget.org">Blog</a></li>
                 </ul>
                 <div id="searchBox" role="search">
                     <form action="@Url.PackageList()" method="get">
@@ -57,20 +55,20 @@
             <footer id="footer">
                 <ul class="recommended">
                     <li>
-                        <a href="http://docs.nuget.org/docs/start-here/overview">Overview</a>
+                        <a href="http://www.jetbrains.com/resharper/">JetBrains</a>
+                        <p>World's Leading Vendor of Professional Development Tools</p>
+                    </li>
+                    <li>
+                        <a href="http://www.jetbrains.com/resharper/">ReSharper</a>
+                        <p>Productivity tool for .NET developers that makes Microsoft Visual Studio a much better IDE</p>
+                    </li>
+                    <li>
+                        <a href="http://www.jetbrains.com/resharper/features/open_api.html">ReSharper Open API</a>
+                        <p>ReSharper's functionality can be significantly extended with its Open API.</p>
+                    </li>
+                    <li>
+                        <a href="http://docs.nuget.org">NuGet</a>
                         <p>NuGet is a Visual Studio 2010 extension that makes it easy to add, remove, and update libraries and...</p>
-                    </li>
-                    <li>
-                        <a href="http://docs.nuget.org/docs/start-here/installing-nuget">Install</a>
-                        <p>NuGet can be installed and updated using the Visual Studio Extension Manager. To check if your copy...</p>
-                    </li>
-                    <li>
-                        <a href="http://docs.nuget.org/docs/start-here/videos">Videos</a>
-                        <p>Watch screencasts and presentations about anything and everything NuGet.</p>
-                    </li>
-                    <li>
-                        <a href="http://docs.nuget.org/docs/start-here/nuget-faq">FAQ</a>
-                        <p>Read the Frequently Asked Questions about NuGet and see if your question made the list.</p>
                     </li>
                 </ul>
                 <div class="license">
