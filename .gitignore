@@ -14,3 +14,5 @@ _ReSharper.NuGetGallery
 _PackagedWebsite
 TestResults
 Packages.dgml
+NuGetGallery.sln.cache
+Website/Properties/PublishProfiles/
