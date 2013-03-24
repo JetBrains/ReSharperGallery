@@ -343,13 +343,13 @@ nav.main ul a:hover {
 }
 
 #logo a {
-    background: url(../Content/Images/nugetlogo.png) no-repeat;
+    background: url(../Content/Images/resharperlogo.png) no-repeat;
     display: block;
     height: 75px;
     margin: 0;
     padding: 0;
     text-indent: -9999px;
-    width: 345px;
+    width:480px;
 }
 
 /* User Info */
