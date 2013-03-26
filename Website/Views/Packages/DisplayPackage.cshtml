@@ -120,22 +120,6 @@
             <a href="@Url.DeletePackage(Model)">change its listing setting</a>.
         </p>
     }
-    <p>
-        To install @Model.Title, run the following command in the <a href="http://docs.nuget.org/docs/start-here/using-the-package-manager-console">
-                                                                      Package Manager Console</a>
-    </p>
-    <div class="nuget-badge">
-        <p>
-            <code>PM&gt; Install-Package @Model.Id
-                @if (!Model.LatestVersion || !Model.Listed)
-                {
-                    <text> -Version @Model.Version</text>
-                }
-                @if (Model.Prerelease)
-                {
-                    <text> -Pre </text>
-                }</code></p>
-    </div>
  
     <div><a href="https://twitter.com/share" class="twitter-share-button" data-url="@absolutePackageUrl" data-text="Check out @Model.Id on #NuGet!">Tweet</a></div>
     <div class="fb-like" data-href="@absolutePackageUrl" data-send="false" data-width="450" data-show-faces="true"></div>
