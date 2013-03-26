@@ -435,16 +435,18 @@ hgroup.page-heading h2 { padding-left: 7px; }
 }
 
 .featured div a.install {
+    color: #490000;
+    background-color: #dc7fb6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#dc7fb6), to(#b9638f));
+    background: -webkit-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -moz-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -ms-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -o-linear-gradient(top, #dc7fb6, #b9638f);
+    background: linear-gradient(top, #dc7fb6, #b9638f);
+    border: 1px solid #ad2467;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-    background-color: #4585aa;
-    background-image: -ms-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -o-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -webkit-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: linear-gradient(top, #4585aa 0%, #376783 100%);
-    border: solid 1px #376783;
     border-radius: 4px;
-    box-shadow: inset 0px 0px 1px rgba(255, 255, 255, 1), 1px 1px 1px rgba(0, 0, 0, 0.3);
     color: #fff;
     display: block;
     font-size: 2em;
@@ -455,12 +457,7 @@ hgroup.page-heading h2 { padding-left: 7px; }
 }
 
 .featured div a.install:hover {
-    background-color: #376783;
-    background-image: -ms-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: -o-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: -webkit-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    border-color: #4585aa;
+    color: #7e255b;
     text-decoration: none;
 }
     
