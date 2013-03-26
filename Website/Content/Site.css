@@ -1185,10 +1185,10 @@ input:focus ~ .field-validation-error ~ .field-hint-message { display: none; }
 .clear-fix { clear: both; }
 
 #layout-footer {
-    background: #e4f1f7;
-    border-top: 1px solid #d3e7fe;
+    background: #f3ecf0;
+    border-top: 1px solid #e0e0e0;
     clear: both;
-    color: #3e483c;
+    color: #474747;
     height: 160px;
     margin-top: -161px;
     padding-bottom: 0px;
