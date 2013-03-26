@@ -237,11 +237,11 @@ nav.main ul li {
 }
 
 nav.main ul li.current a {
-    background-color: #e4f1f7;
+    background-color: #f3ecf0;
     border: 1px solid #ebf2f5;
     border-bottom: none;
     border-top: 1px solid #fff;
-    color: #195670;
+    color: #7e255b;
     height: 46px;
     line-height: 44px;
     position: relative;
@@ -1207,12 +1207,16 @@ footer#footer p {
     padding: 0;
 }
 
+footer#footer a {
+    color: #7e255b;
+}
+
 footer#footer p#releaseTag { margin: 10px 0 0 0; }
 
 footer#footer p#releaseTag a { color: #3e483c; }
 
 footer#footer p#releaseTag a:hover {
-    color: #0071bc;
+    color: #7e255b;
     text-decoration: underline;
 }
 
