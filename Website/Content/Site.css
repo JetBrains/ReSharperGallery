@@ -155,6 +155,7 @@ nav, section { display: block; }
     background-image: linear-gradient(to bottom, #ffff00, #e5e600);
 }
 
+html.static body,
 #outer-wrapper {
     background: url('../Content/Images/headerbackground.png') repeat-x top left #fff;
 }
