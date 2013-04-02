@@ -170,9 +170,9 @@ html.static body,
 /* General */
 
 .message {
-    background-color: #eff7fa;
+    background-color: #f3ecf0;
     border: solid 1px;
-    color: #52a4ca;
+    color: #7e255b;
     font-size: 1.3em;
     padding: 10px;
 }
@@ -208,9 +208,9 @@ html.static body,
 }
 
 .not-latest-message {
-    background-color: #eff7fa;
-    border-color: #52a4ca;
-    color: #52a4ca;
+    background-color: #f3ecf0;
+    border-color: #7e255b;
+    color: #7e255b;
 }
 
 /* Header */
@@ -568,9 +568,9 @@ hgroup.page-heading h2 { padding-left: 7px; }
 }
 
 #overlayWrapper {
-    background-color: #eff7fa;
+    background-color: #f3ecf0;
     border: solid 1px;
-    color: #52a4ca;
+    color: #7e255b;
     cursor: pointer;
     font-size: 2em;
     height: 240px;
@@ -607,13 +607,15 @@ hgroup.page-heading h2 { padding-left: 7px; }
 
 .sequence li.past,
 .sequence li.current {
-    background-color: #4585aa;
-    background-image: -ms-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -o-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -webkit-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: linear-gradient(top, #4585aa 0%, #376783 100%);
-    border-color: #376783;
-    color: #fff;
+    color: #490000;
+    background-color: #dc7fb6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#dc7fb6), to(#b9638f));
+    background: -webkit-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -moz-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -ms-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -o-linear-gradient(top, #dc7fb6, #b9638f);
+    background: linear-gradient(top, #dc7fb6, #b9638f);
+    border: 1px solid #ad2467;
 }
 
 .sequence li.current {
@@ -686,7 +688,7 @@ ul.dependencySet li {
     padding: 0;
 }
 
-#packageDetails h3 { color: #52a4ca; }
+#packageDetails h3 { color: #73255b; }
 
 #packageDetails p { margin-left: 10px; }
     
@@ -1041,7 +1043,7 @@ fieldset.form legend { display: none; }
 }
 
 .form-field label {
-    color: #52a4ca;
+    color: #7e255b;
     display: block;
     font-size: 1.25em;
     margin-bottom: 5px;
@@ -1078,7 +1080,7 @@ fieldset.form legend { display: none; }
 
 .form-field input[data-val-required],
 .form-field textarea[data-val-required] {
-    border-left: solid 5px #52a4ca;
+    border-left: solid 5px #ad2467;
 }
 
 .form-field input[type="checkbox"] { border-left: none; }
@@ -1101,8 +1103,8 @@ fieldset.form legend { display: none; }
 }
 
 .field-hint-message {
-    background-color: #eff7fa;
-    border: solid 1px #52a4ca;
+    background-color: #f3ecf0;
+    border: solid 1px #7e255b;
     display: none;
 }
 
@@ -1117,14 +1119,15 @@ fieldset.form legend { display: none; }
 input:focus ~ .field-validation-error ~ .field-hint-message { display: none; }
 
 .form input[type="submit"] {
-    background-color: #4585aa;
-    background-image: -ms-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -o-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -webkit-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: linear-gradient(top, #4585aa 0%, #376783 100%);
-    border: solid 1px #376783;
-    box-shadow: inset 0px 0px 1px rgba(255, 255, 255, 1), 1px 1px 1px rgba(0, 0, 0, 0.3);
-    color: #fff;
+    color: #490000;
+    background-color: #dc7fb6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#dc7fb6), to(#b9638f));
+    background: -webkit-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -moz-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -ms-linear-gradient(top, #dc7fb6, #b9638f);
+    background: -o-linear-gradient(top, #dc7fb6, #b9638f);
+    background: linear-gradient(top, #dc7fb6, #b9638f);
+    border: 1px solid #ad2467;
     cursor: pointer;
     font-size: 1.25em;
     font-weight: 500;
@@ -1134,12 +1137,12 @@ input:focus ~ .field-validation-error ~ .field-hint-message { display: none; }
 }
 
 .form input[type="submit"]:hover {
-    background-color: #307A25;
-    background-image: -ms-linear-gradient(top, #307A25 0%, #2C9E1B 100%);
-    background-image: -o-linear-gradient(top, #307A25 0%, #2C9E1B 100%);
-    background-image: -webkit-linear-gradient(top, #307A25 0%, #2C9E1B 100%);
-    background-image: linear-gradient(top, #307A25 0%, #2C9E1B 100%);
-    border-color: #307A25;
+    background: -webkit-gradient(linear, left top, left bottom, from(#dc7fb6), to(#dc7fb6));
+    background: -webkit-linear-gradient(top, #dc7fb6, #dc7fb6);
+    background: -moz-linear-gradient(top, #dc7fb6, #dc7fb6);
+    background: -ms-linear-gradient(top, #dc7fb6, #dc7fb6);
+    background: -o-linear-gradient(top, #dc7fb6, #dc7fb6);
+    background: linear-gradient(top, #dc7fb6, #b9638f);
 }
 
 .form a.cancel { font-size: 1.25em; }
