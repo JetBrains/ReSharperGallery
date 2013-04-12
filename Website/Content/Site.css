@@ -1199,7 +1199,6 @@ input:focus ~ .field-validation-error ~ .field-hint-message { display: none; }
     border-top: 1px solid #e0e0e0;
     clear: both;
     color: #474747;
-    height: 160px;
     margin-top: -161px;
     padding-bottom: 1em;
     padding-top: 0px;
@@ -1254,6 +1253,11 @@ footer#footer ul.recommended li p { font-size: .9em; }
 footer#footer div.license {
     clear: both;
     font-size: .7em;
+}
+footer#footer div.license div {
+    display: inline-block;
+    padding: 0;
+    margin: 0 1em;
 }
 
 /* async upload */

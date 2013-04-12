@@ -876,6 +876,7 @@
     <Content Include="Content\Images\copy.png" />
     <Content Include="Content\Images\errorPage.png" />
     <Content Include="Content\Images\editProfile.png" />
+    <Content Include="Content\Images\JBlogo.png" />
     <Content Include="Content\Images\managePackages.png" />
     <Content Include="Content\Images\packageResharper.png" />
     <Content Include="Content\Images\resharperlogo.png" />
