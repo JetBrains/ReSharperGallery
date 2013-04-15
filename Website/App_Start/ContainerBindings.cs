@@ -224,6 +224,8 @@ namespace NuGetGallery
                 .To<WebMatrixPackageCurator>();
             Bind<IAutomaticPackageCurator>()
                 .To<Windows8PackageCurator>();
+            Bind<IAutomaticPackageCurator>()
+                .To<ProductPackageCurator>();
 
             // todo: bind all commands by convention
             Bind<IAutomaticallyCuratePackageCommand>()

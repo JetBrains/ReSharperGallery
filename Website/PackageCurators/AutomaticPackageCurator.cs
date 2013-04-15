@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using NuGet;
@@ -19,12 +20,17 @@ namespace NuGetGallery
 
         protected static bool DependenciesAreCurated(Package galleryPackage, CuratedFeed curatedFeed)
         {
-            if (galleryPackage.Dependencies.IsEmpty())
+            return DependenciesAreCurated(galleryPackage.Dependencies, curatedFeed);
+        }
+
+        protected static bool DependenciesAreCurated(ICollection<PackageDependency> dependencies, CuratedFeed curatedFeed)
+        {
+            if (dependencies.IsEmpty())
             {
                 return true;
             }
 
-            return galleryPackage.Dependencies.All(
+            return dependencies.All(
                 d => curatedFeed.Packages
                     .Where(p => p.Included)
                     .Any(p => p.PackageRegistration.Id.Equals(d.Id, StringComparison.OrdinalIgnoreCase)));
