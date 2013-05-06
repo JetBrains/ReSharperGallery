@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Ninject;
 using NuGet;
 
 namespace NuGetGallery
@@ -15,7 +16,7 @@ namespace NuGetGallery
 
         protected virtual T GetService<T>()
         {
-            return DependencyResolver.Current.GetService<T>();
+            return Container.Kernel.TryGet<T>();
         }
 
         protected static bool DependenciesAreCurated(Package galleryPackage, CuratedFeed curatedFeed)

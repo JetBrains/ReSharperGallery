@@ -46,6 +46,9 @@ using T4MVC;
 public static class MVC {
 
 
+    static readonly AdminClass s_Admin = new AdminClass();
+    public static AdminClass Admin { get { return s_Admin; } }
+
 
 
     public static NuGetGallery.ApiController Api = new NuGetGallery.T4MVC_ApiController();
@@ -71,6 +74,16 @@ public static class MVC {
 }
 
 namespace T4MVC {
+
+    [GeneratedCode("T4MVC", "2.0"), DebuggerNonUserCode]
+    public class AdminClass {
+        public readonly string Name = "Admin";
+
+        public NuGetGallery.Areas.Admin.Controllers.HomeController Home = new NuGetGallery.Areas.Admin.Controllers.T4MVC_HomeController();
+
+        public T4MVC.Admin.SharedController Shared = new T4MVC.Admin.SharedController();
+
+    }
 
 }
 
@@ -428,6 +441,11 @@ namespace Links {
 
 
     public static readonly string stats_js = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/stats.min.js") ? Url("stats.min.js") : Url("stats.js");
+                  
+
+
+
+    public static readonly string statsdimensions_js = T4MVCHelpers.IsProduction() && T4Extensions.FileExists(URLPATH + "/statsdimensions.min.js") ? Url("statsdimensions.min.js") : Url("statsdimensions.js");
                   
 
 
@@ -795,6 +813,12 @@ static class T4MVCHelpers {
         return (HttpContext.Current != null && !HttpContext.Current.IsDebuggingEnabled); 
     }
 }
+
+
+
+
+
+
 
 
 
