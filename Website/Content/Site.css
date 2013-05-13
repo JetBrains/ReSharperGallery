@@ -163,8 +163,8 @@ html.static body,
 #content-wrapper {
     margin: 0 auto;
     min-height: 100%;
-    min-width: 960px;
-    width: 960px;
+    min-width: 1110px;
+    width: 1110px;
 }
 
 /* General */
@@ -410,7 +410,7 @@ hgroup.page-heading h2 { padding-left: 7px; }
     border: solid 1px #dedede;
     border-radius: 3px;
     margin: 10px auto;
-    padding: 20px 10px 0 10px;
+    padding: 20px 10px 10px 10px;
 }
 
 .featured div {
