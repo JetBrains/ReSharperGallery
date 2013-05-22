@@ -1,4 +1,5 @@
-﻿@{
+﻿@model NuGetGallery.ViewModels.HomeViewModel
+@{
     ViewBag.Title = "Home";
     ViewBag.Tab = "Home";
 }
@@ -27,6 +28,18 @@
 <section class="aggstatserr">
     <span class="err">an error occurred while retrieving statistics</span>
 </section>
+
+@if(Model.Announcement != null) {
+<section class="release">
+    @Model.Announcement
+</section>
+}
+
+@if(Model.About != null) {
+<section class="info">
+    @Model.About
+</section>
+}
 
 @section BottomScripts
 {

@@ -28,12 +28,13 @@ namespace NuGetGallery
           continue; // not satisfied by name
         if ((curatedFeedData.Version != null) && !VersionUtility.ParseVersionSpec(dependency.VersionSpec).Satisfies(curatedFeedData.Version))
           continue; // not satisfied by version
-        var curatedFeed = GetService<ICuratedFeedByNameQuery>().Execute(curatedFeedData.Name, includePackages: true);
+        var curatedFeedService = GetService<ICuratedFeedService>();
+        var curatedFeed = curatedFeedService.GetFeedByName(curatedFeedData.Name, includePackages: true);
         if (curatedFeed.Packages.Any(cp => cp.PackageRegistration.Key == galleryPackage.PackageRegistration.Key))
           continue; // already curated
         if (DependenciesAreCurated(galleryPackage.Dependencies.Except(new[] { dependency }).ToList(), curatedFeed))
         {
-          GetService<ICreateCuratedPackageCommand>().Execute(
+          curatedFeedService.CreatedCuratedPackage(
             curatedFeed,
             galleryPackage.PackageRegistration,
             automaticallyCurated: true,
