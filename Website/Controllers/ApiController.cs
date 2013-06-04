@@ -10,9 +10,11 @@ using System.Web.Mvc;
 using System.Web.UI;
 using Newtonsoft.Json.Linq;
 using NuGet;
+using NuGetGallery.Filters;
 
 namespace NuGetGallery
 {
+    [GoogleAnalyticsMeasurementProtocol]
     public partial class ApiController : AppController
     {
         private readonly INuGetExeDownloaderService _nugetExeDownloaderService;
