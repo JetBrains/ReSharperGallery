@@ -132,7 +132,7 @@ namespace NuGetGallery
                 .InRequestScope();
 
             Bind<IFormsAuthenticationService>()
-                .To<FormsAuthenticationService>()
+                .To<CasAuthenticationService>()
                 .InSingletonScope();
 
             Bind<IControllerFactory>()

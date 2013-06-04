@@ -59,6 +59,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetCasClient">
+      <HintPath>..\packages\DotNetCasClient.1.0.1\lib\DotNetCasClient.dll</HintPath>
+    </Reference>
     <Reference Include="DynamicData.EFCodeFirstProvider, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DynamicData.EFCodeFirstProvider.0.3.0.0\lib\net40\DynamicData.EFCodeFirstProvider.dll</HintPath>
@@ -265,10 +268,12 @@
     <Compile Include="ApiController.generated.cs">
       <DependentUpon>T4MVC.tt</DependentUpon>
     </Compile>
+    <Compile Include="App_Start\CasAuthenticationModule.cs" />
     <Compile Include="Areas\Admin\DynamicData\OrderedFieldGenerator.cs" />
     <Compile Include="Areas\Admin\Controllers\LuceneController.cs" />
     <Compile Include="Areas\Admin\Models\LuceneInfoModel.cs" />
     <Compile Include="Controllers\AppController.cs" />
+    <Compile Include="Controllers\CasAuthenticationController.cs" />
     <Compile Include="Diagnostics\ConcurrentInMemoryPersistenceStore.cs" />
     <Compile Include="Diagnostics\DiagnosticsService.cs" />
     <Compile Include="Diagnostics\NullDiagnosticsSource.cs" />
@@ -774,6 +779,7 @@
     <Compile Include="Queries\PackageIdsQuery.cs" />
     <Compile Include="RequestModels\ModifyCuratedPackageRequest.cs" />
     <Compile Include="RequestModels\CreateCuratedPackageRequest.cs" />
+    <Compile Include="Services\CasAuthenticationService.cs" />
     <Compile Include="Services\CloudCacheService.cs" />
     <Compile Include="Services\CuratedFeedService.cs" />
     <Compile Include="Services\ICuratedFeedService.cs" />

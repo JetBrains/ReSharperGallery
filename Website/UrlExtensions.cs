@@ -117,26 +117,14 @@ namespace NuGetGallery
             return version == null ? EnsureTrailingSlash(result) : result;
         }
 
-        public static string LogOn(this UrlHelper url)
+        public static string LogOn(this UrlHelper url, string returnUrl = null)
         {
-            return url.RouteUrl(RouteName.Authentication, new { action = "LogOn" });
+            return url.RouteUrl(RouteName.Authentication, new { action = "LogOn", returnUrl });
         }
 
-        public static string LogOff(this UrlHelper url)
+        public static string LogOff(this UrlHelper url, string returnUrl = null)
         {
-            string returnUrl = url.Current();
-            // If we're logging off from the Admin Area, don't set a return url
-            if (String.Equals(url.RequestContext.RouteData.DataTokens["area"].ToStringOrNull(), "Admin", StringComparison.OrdinalIgnoreCase))
-            {
-                returnUrl = String.Empty;
-            }
-            var originalResult = MVC.Authentication.LogOff(returnUrl);
-            var result = originalResult.GetT4MVCResult();
-            
-            // T4MVC doesn't set area to "", but we need it to, otherwise it thinks this is an intra-area link.
-            result.RouteValueDictionary["area"] = "";
-
-            return url.Action(originalResult);
+            return url.RouteUrl(RouteName.Authentication, new { action = "LogOff", returnUrl });
         }
 
         public static string Search(this UrlHelper url, string searchTerm)

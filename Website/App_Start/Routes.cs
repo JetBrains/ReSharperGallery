@@ -115,7 +115,7 @@ namespace NuGetGallery
             routes.MapRoute(
                 RouteName.Authentication,
                 "users/account/{action}",
-                new { controller = MVC.Authentication.Name });
+                new { controller = "CasAuthentication" });
 
             routes.MapRoute(
                 RouteName.Profile,
