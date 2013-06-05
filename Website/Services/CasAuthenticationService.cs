@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
 using DotNetCasClient;
+using DotNetCasClient.Utils;
 
 namespace NuGetGallery
 {
@@ -15,7 +16,7 @@ namespace NuGetGallery
       get { return base.CookieName + "_CAS"; }
     }
 
-    public override void SignOut()
+    protected override void ClearAuthCookie()
     {
       // Delete the "LoggedIn" cookie
       HttpContext context = HttpContext.Current;
@@ -26,8 +27,29 @@ namespace NuGetGallery
         context.Response.Cookies.Add(cookie);
       }
 
+      CasAuthentication.ClearAuthCookie();
+      base.ClearAuthCookie();
+    }
+
+    private const string OldSignOutServiceParameter = "TARGET";
+    private const string NewSignOutServiceParameter = "service";
+
+    public override void SignOut()
+    {
+      HttpContext context = HttpContext.Current;
+      if (context.Request.IsAuthenticated)
+      {
+        var singleSignOutRedirectUrl = new  EnhancedUriBuilder(UrlUtil.ConstructSingleSignOutRedirectUrl());
+        var returnUrl = singleSignOutRedirectUrl.QueryItems[OldSignOutServiceParameter];
+        singleSignOutRedirectUrl.QueryItems.Remove(OldSignOutServiceParameter);
+        singleSignOutRedirectUrl.QueryItems[NewSignOutServiceParameter] = returnUrl;
+
+        ClearAuthCookie();
+        context.Response.Redirect(singleSignOutRedirectUrl.Uri.AbsoluteUri, true);
+        return;
+      }
+
       base.SignOut();
-      CasAuthentication.SingleSignOut();
     }
   }
 }

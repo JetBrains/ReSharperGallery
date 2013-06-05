@@ -74,18 +74,22 @@ namespace NuGetGallery
             }
         }
 
+        protected virtual void ClearAuthCookie()
+        {
+          // Delete the "LoggedIn" cookie
+          HttpContext context = HttpContext.Current;
+          var cookie = context.Request.Cookies[ForceSSLCookieName];
+          if (cookie != null)
+          {
+            cookie.Expires = DateTime.Now.AddDays(-1d);
+            context.Response.Cookies.Add(cookie);
+          }
+        }
+
         public virtual void SignOut()
         {
             FormsAuthentication.SignOut();
-
-            // Delete the "LoggedIn" cookie
-            HttpContext context = HttpContext.Current;
-            var cookie = context.Request.Cookies[ForceSSLCookieName];
-            if (cookie != null)
-            {
-                cookie.Expires = DateTime.Now.AddDays(-1d);
-                context.Response.Cookies.Add(cookie);
-            }
+            ClearAuthCookie();
         }
 
 
