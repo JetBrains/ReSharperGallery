@@ -4,7 +4,6 @@
     if (!User.Identity.IsAuthenticated)
     {
         <span class="welcome"><a href="@Url.LogOn(returnUrl)">Log On</a></span>
-        <a href="@Url.Action(MVC.Users.Register())" class="register">Register</a>
     }
     else
     {
