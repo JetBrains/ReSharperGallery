@@ -37,6 +37,7 @@ namespace NuGetGallery
           curatedFeedService.CreatedCuratedPackage(
             curatedFeed,
             galleryPackage.PackageRegistration,
+            included: true,
             automaticallyCurated: true,
             commitChanges: commitChanges);
         }
