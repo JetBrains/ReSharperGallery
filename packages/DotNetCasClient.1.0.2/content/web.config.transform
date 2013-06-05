@@ -1,0 +1,35 @@
+<configuration>
+    <configSections>
+        <section name="casClientConfig" type="DotNetCasClient.Configuration.CasClientConfiguration, DotNetCasClient" />
+    </configSections>
+    <casClientConfig 
+        casServerLoginUrl="https://cas.example.com/cas/login" 
+        casServerUrlPrefix="https://cas.example.com/cas/" 
+        serverName="cas.example.com" 
+        notAuthorizedUrl="~/NotAuthorized.aspx" 
+        cookiesRequiredUrl="~/CookiesRequired.aspx" 
+        redirectAfterValidation="true" 
+        gateway="false" 
+        renew="false" 
+        singleSignOut="true" 
+        ticketTimeTolerance="5000" 
+        ticketValidatorName="Cas20" 
+        proxyTicketManager="CacheProxyTicketManager" 
+        serviceTicketManager="CacheServiceTicketManager" 
+        gatewayStatusCookieName="CasGatewayStatus" />
+    <system.web>
+        <authentication mode="Forms">
+            <forms loginUrl="https://cas.example.com/cas/login" cookieless="UseCookies" />
+        </authentication>
+        <httpModules>
+            <add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient" />
+        </httpModules>
+    </system.web>
+    <system.webServer>
+        <validation validateIntegratedModeConfiguration="false" />
+        <modules>
+            <remove name="DotNetCasClient" />
+            <add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient" />
+        </modules>
+    </system.webServer>
+</configuration>

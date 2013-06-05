@@ -5,8 +5,6 @@ namespace NuGetGallery
 {
     public interface IFormsAuthenticationService
     {
-        HttpCookie GetAuthCookie();
-
         void SetAuthCookie(
             string userName,
             bool createPersistentCookie,

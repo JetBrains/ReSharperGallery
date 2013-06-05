@@ -16,17 +16,6 @@ namespace NuGetGallery
 
         private const string ForceSSLCookieName = "ForceSSL";
 
-        protected virtual string CookieName
-        {
-          get { return FormsAuthentication.FormsCookieName; }
-        }
-
-        public HttpCookie GetAuthCookie()
-        {
-          var request = HttpContext.Current.Request;
-          return request.Cookies[CookieName];
-        }
-
         public void SetAuthCookie(
             string userName,
             bool createPersistentCookie,
@@ -40,31 +29,21 @@ namespace NuGetGallery
 
             HttpContext context = HttpContext.Current;
 
-            var originalCookie = FormsAuthentication.GetAuthCookie(userName, createPersistentCookie);
-            var originalTicket = FormsAuthentication.Decrypt(originalCookie.Value);
-            var ticket = originalTicket == null ?
-              new FormsAuthenticationTicket(
+            var ticket = new FormsAuthenticationTicket(
                 version: 1,
                 name: userName,
                 issueDate: DateTime.UtcNow,
                 expiration: DateTime.UtcNow.AddMinutes(30),
                 isPersistent: createPersistentCookie,
                 userData: formattedRoles
-                ) :
-              new FormsAuthenticationTicket(
-                version: originalTicket.Version,
-                name: originalTicket.Name,
-                issueDate: originalTicket.IssueDate,
-                expiration: originalTicket.Expiration,
-                isPersistent: originalTicket.IsPersistent,
-                userData: formattedRoles,
-                cookiePath: originalTicket.CookiePath
                 );
-            
+
             string encryptedTicket = FormsAuthentication.Encrypt(ticket);
-            var formsCookie = originalCookie;
-            formsCookie.Name = CookieName;
-            formsCookie.Value = encryptedTicket;
+            var formsCookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket)
+            {
+                HttpOnly = true,
+                Secure = _configuration.RequireSSL
+            };
             context.Response.Cookies.Add(formsCookie);
 
             if (_configuration.RequireSSL)
@@ -74,22 +53,18 @@ namespace NuGetGallery
             }
         }
 
-        protected virtual void ClearAuthCookie()
-        {
-          // Delete the "LoggedIn" cookie
-          HttpContext context = HttpContext.Current;
-          var cookie = context.Request.Cookies[ForceSSLCookieName];
-          if (cookie != null)
-          {
-            cookie.Expires = DateTime.Now.AddDays(-1d);
-            context.Response.Cookies.Add(cookie);
-          }
-        }
-
-        public virtual void SignOut()
+        public void SignOut()
         {
             FormsAuthentication.SignOut();
-            ClearAuthCookie();
+
+            // Delete the "LoggedIn" cookie
+            HttpContext context = HttpContext.Current;
+            var cookie = context.Request.Cookies[ForceSSLCookieName];
+            if (cookie != null)
+            {
+                cookie.Expires = DateTime.Now.AddDays(-1d);
+                context.Response.Cookies.Add(cookie);
+            }
         }
 
 

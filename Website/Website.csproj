@@ -59,8 +59,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetCasClient">
-      <HintPath>..\packages\DotNetCasClient.1.0.1\lib\DotNetCasClient.dll</HintPath>
+    <Reference Include="DotNetCasClient, Version=1.0.2.29157, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DotNetCasClient.1.0.2\lib\DotNetCasClient.dll</HintPath>
     </Reference>
     <Reference Include="DynamicData.EFCodeFirstProvider, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -268,7 +269,6 @@
     <Compile Include="ApiController.generated.cs">
       <DependentUpon>T4MVC.tt</DependentUpon>
     </Compile>
-    <Compile Include="App_Start\CasAuthenticationModule.cs" />
     <Compile Include="Areas\Admin\DynamicData\OrderedFieldGenerator.cs" />
     <Compile Include="Areas\Admin\Controllers\LuceneController.cs" />
     <Compile Include="Areas\Admin\Models\LuceneInfoModel.cs" />
@@ -574,6 +574,7 @@
     <Compile Include="Helpers\TreeView.cs" />
     <Compile Include="ImageResult.cs" />
     <Compile Include="Infrastructure\AzureEntityList.cs" />
+    <Compile Include="Infrastructure\GalleryRoleProvider.cs" />
     <Compile Include="Infrastructure\PackageIndexEntity.cs" />
     <Compile Include="Infrastructure\PrincipalExtensions.cs" />
     <Compile Include="Infrastructure\GalleryGateway.cs" />
@@ -780,7 +781,6 @@
     <Compile Include="Queries\PackageIdsQuery.cs" />
     <Compile Include="RequestModels\ModifyCuratedPackageRequest.cs" />
     <Compile Include="RequestModels\CreateCuratedPackageRequest.cs" />
-    <Compile Include="Services\CasAuthenticationService.cs" />
     <Compile Include="Services\CloudCacheService.cs" />
     <Compile Include="Services\CuratedFeedService.cs" />
     <Compile Include="Services\ICuratedFeedService.cs" />
