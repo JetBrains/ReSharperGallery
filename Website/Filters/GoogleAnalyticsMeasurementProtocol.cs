@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 
 namespace NuGetGallery.Filters
 {
-  public class GoogleAnalyticsMeasurementProtocol : ActionFilterAttribute
+  public sealed class GoogleAnalyticsMeasurementProtocol : ActionFilterAttribute
   {
     private static readonly Uri GA_ENDPOINT = new Uri("https://www.google-analytics.com/collect");
 
@@ -49,7 +50,7 @@ namespace NuGetGallery.Filters
         var packageId = string.Join(",", 
           new [] { filterContext.RouteData.Values["id"], filterContext.RouteData.Values["version"] }
             .Select(_ => _ != null)
-            .Select(_ => Convert.ToString(_)));
+            .Select(_ => Convert.ToString(_, CultureInfo.InvariantCulture)));
 
         var eventParameters = new NameValueCollection(baseParameters)
         {
