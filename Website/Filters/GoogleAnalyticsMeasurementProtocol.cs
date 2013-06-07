@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using Ninject;
+using NuGetGallery.Configuration;
 
 namespace NuGetGallery.Filters
 {
@@ -14,7 +16,10 @@ namespace NuGetGallery.Filters
 
     public override void OnResultExecuted(ResultExecutedContext filterContext)
     {
-      var gaPropertyId = ConfigurationManager.AppSettings["Gallery.GoogleAnalyticsPropertyId"];
+      var config = Container.Kernel.TryGet<ConfigurationService>();
+      if (config == null)
+        return;
+      var gaPropertyId = config.Current.GoogleAnalyticsPropertyId;
       if (string.IsNullOrEmpty(gaPropertyId))
         return;
       var webClient = new WebClient
