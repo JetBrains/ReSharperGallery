@@ -318,12 +318,6 @@ namespace NuGetGallery
               routeTemplate: "api/internal/{action}",
               defaults: new { controller = "Internal" },
               constraints: new { httpMethod = new HttpMethodConstraint("GET") });
-            
-            var config = GlobalConfiguration.Configuration;
-            config.Formatters.JsonFormatter.MediaTypeMappings.Add(
-                new QueryStringMapping("mediaType", "json", "application/json"));
-            config.Formatters.XmlFormatter.MediaTypeMappings.Add(
-               new QueryStringMapping("mediaType", "xml", "application/xml"));
         }
 
         // note: Pulled out service route registration separately because it's not testable T.T (won't run outside IIS/WAS) 

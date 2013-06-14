@@ -92,7 +92,10 @@ namespace NuGetGallery
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
 
-            GlobalConfiguration.Configuration.Filters.Add(new ElmahHandleErrorApiAttribute());
+            var config = GlobalConfiguration.Configuration;
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+            config.Filters.Add(new ElmahHandleErrorApiAttribute());
+
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
