@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using NuGetGallery.Filters;
@@ -40,7 +39,7 @@ namespace NuGetGallery.Controllers
         .AsEnumerable()
         .Select(_ => new
         {
-          Name = _.Title,
+          Name = string.IsNullOrEmpty(_.Title) ? _.Id : _.Title,
           Description = _.Description,
           Owners = _.Owners.Select(__ => new { owner = __, url = Url.Link(null, MVC.Users.Profiles(__).GetRouteValueDictionary()) }),
           Authors = _.Authors,
