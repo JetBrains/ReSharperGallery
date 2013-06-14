@@ -57,16 +57,23 @@ namespace NuGetGallery.Configuration
                 if (String.IsNullOrEmpty(value))
                 {
                     var defaultValue = property.Attributes.OfType<DefaultValueAttribute>().FirstOrDefault();
-                    if (defaultValue != null && defaultValue.Value != null)
+                    if (defaultValue != null)
                     {
-                        if (defaultValue.Value.GetType() == property.PropertyType)
+                        if (defaultValue.Value != null)
                         {
-                            property.SetValue(instance, defaultValue.Value);
-                            continue;
+                          if (defaultValue.Value.GetType() == property.PropertyType)
+                          {
+                              property.SetValue(instance, defaultValue.Value);
+                              continue;
+                          }
+                          else
+                          {
+                              value = defaultValue.Value as string;
+                          }
                         }
                         else
                         {
-                            value = defaultValue.Value as string;
+                          value = null;
                         }
                     }
                 }

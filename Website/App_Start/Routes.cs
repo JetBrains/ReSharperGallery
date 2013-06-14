@@ -1,4 +1,6 @@
-﻿using System.Web.Mvc;
+﻿using System.Net.Http.Formatting;
+using System.Web.Http;
+using System.Web.Mvc;
 using System.Web.Routing;
 using MvcHaack.Ajax;
 using RouteMagic;
@@ -310,6 +312,18 @@ namespace NuGetGallery
                     "v1/Package/Download/{id}/{version}",
                     new { controller = MVC.Api.Name, action = "GetPackageApi", version = UrlParameter.Optional }),
                 permanent: true).To(downloadRoute);
+
+            routes.MapHttpRoute(
+              name: "InternalApi",
+              routeTemplate: "api/internal/{action}",
+              defaults: new { controller = "Internal" },
+              constraints: new { httpMethod = new HttpMethodConstraint("GET") });
+            
+            var config = GlobalConfiguration.Configuration;
+            config.Formatters.JsonFormatter.MediaTypeMappings.Add(
+                new QueryStringMapping("mediaType", "json", "application/json"));
+            config.Formatters.XmlFormatter.MediaTypeMappings.Add(
+               new QueryStringMapping("mediaType", "xml", "application/xml"));
         }
 
         // note: Pulled out service route registration separately because it's not testable T.T (won't run outside IIS/WAS) 

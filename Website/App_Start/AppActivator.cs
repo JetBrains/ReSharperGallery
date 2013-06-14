@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -136,7 +137,12 @@ namespace NuGetGallery
         {
             DynamicModuleUtility.RegisterModule(typeof(OnePerRequestModule));
             DynamicModuleUtility.RegisterModule(typeof(HttpApplicationInitializationModule));
-            NinjectBootstrapper.Initialize(() => Container.Kernel);
+            NinjectBootstrapper.Initialize(() =>
+            {
+              var kernel = Container.Kernel;
+              GlobalConfiguration.Configuration.DependencyResolver = new Ninject.WebApi.DependencyResolver.NinjectDependencyResolver(kernel);
+              return kernel;
+            });
         }
 
         private static void NinjectStop()
