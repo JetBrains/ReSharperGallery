@@ -8,6 +8,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Elmah;
 using Elmah.Contrib.Mvc;
+using Elmah.Contrib.WebApi;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Ninject;
 using Ninject.Web.Mvc;
@@ -90,7 +91,8 @@ namespace NuGetGallery
             Routes.RegisterRoutes(RouteTable.Routes);
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
-            
+
+            GlobalConfiguration.Configuration.Filters.Add(new ElmahHandleErrorApiAttribute());
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
