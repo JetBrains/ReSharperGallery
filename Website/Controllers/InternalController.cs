@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using NuGetGallery.Filters;
@@ -42,9 +43,9 @@ namespace NuGetGallery.Controllers
           Name = string.IsNullOrEmpty(_.Title) ? _.Id : _.Title,
           Description = _.Description,
           Owners = _.Owners.Select(__ => new { owner = __, url = Url.Link(null, MVC.Users.Profiles(__).GetRouteValueDictionary()) }),
-          Authors = _.Authors,
+          Authors = _.Authors.Select(__ => new { author = __ }),
           Compatible_versions = _.Dependencies,
-          Tags = string.IsNullOrEmpty(_.Tags) ? new string[0] : _.Tags.Trim().Split(' '),
+          Tags = (_.Tags ?? "").Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(__ => new { tag = __ }),
           Last_update = _.LastUpdated,
           Last_version = _.Version,
           Downloads = _.DownloadCount,
