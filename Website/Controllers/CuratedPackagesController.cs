@@ -10,15 +10,33 @@ namespace NuGetGallery
         public const string ControllerName = "CuratedPackages";
         internal ICuratedFeedService CuratedFeedService { get; set; }
         internal IEntitiesContext EntitiesContext { get; set; }
+        internal IAutomaticallyCuratePackageCommand AutoCuratedPackageCmd { get; set; }
 
         protected CuratedPackagesController() { }
 
         public CuratedPackagesController(
             ICuratedFeedService curatedFeedService,
-            IEntitiesContext entitiesContext)
+            IEntitiesContext entitiesContext,
+            IAutomaticallyCuratePackageCommand autoCuratedPackageCmd)
         {
             this.CuratedFeedService = curatedFeedService;
             this.EntitiesContext = entitiesContext;
+            this.AutoCuratedPackageCmd = autoCuratedPackageCmd;
+        }
+
+        [HttpPost]
+        public virtual ActionResult ReIndex(string curatedFeedName)
+        {
+          foreach (var package in EntitiesContext.PackageRegistrations
+            .SelectMany(registration => registration.Packages.Where(p => p.IsLatest || p.IsLatestStable))
+            .Include(package => package.PackageRegistration)
+            .ToList())
+          {
+            AutoCuratedPackageCmd.Execute(package, null, false);
+          }
+          EntitiesContext.SaveChanges();
+
+          return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeedName });
         }
 
         [ActionName("CreateCuratedPackageForm")]

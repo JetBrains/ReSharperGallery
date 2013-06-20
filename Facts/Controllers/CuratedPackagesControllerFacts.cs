@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Security.Principal;
 using System.Web.Mvc;
 using Moq;
+using NuGetGallery.Commands;
 using Xunit;
 
 namespace NuGetGallery
@@ -36,6 +37,8 @@ namespace NuGetGallery
                 base.CuratedFeedService = new CuratedFeedService(
                     curatedFeedRepository,
                     curatedPackageRepository);
+
+                base.AutoCuratedPackageCmd = new AutomaticallyCuratePackageCommandFacts.TestableAutomaticallyCuratePackageCommand();
             }
 
             public CuratedFeed StubCuratedFeed { get; set; }

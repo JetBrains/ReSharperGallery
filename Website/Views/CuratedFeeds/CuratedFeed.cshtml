@@ -86,11 +86,19 @@
 <h2>Excluded Packages</h2>
 <p>This is a list of all automatically-curated packages that have been subsequently manually excluded. To include the package in the curated feed, click the "Include" link next to the package.</p>
 <ul>
-    @foreach (var package in Model.ExcludedPackages)
-    {
-        <li>
-            @package
-            <a href="#" class="include-link" data-package-id="@package">Include</a>
-        </li>
-    }
+  @foreach (var package in Model.ExcludedPackages)
+  {
+    <li>
+      @package
+      <a href="#" class="include-link" data-package-id="@package">Include</a>
+    </li>
+  }
 </ul>
+<h2>ReIndex automatically-curated packages</h2>
+@using (Html.BeginForm("ReIndex", CuratedPackagesController.ControllerName, new { curatedFeedName = Model.Name }))
+{
+  <fieldset class="form">
+      @Html.AntiForgeryToken()
+      <input type="submit" value="ReIndex" title="ReIndex" />
+  </fieldset>
+}

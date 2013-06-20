@@ -150,6 +150,11 @@ namespace NuGetGallery
                 new { controller = CuratedPackagesController.ControllerName, action = "CreateCuratedPackageForm" });
 
             routes.MapRoute(
+              RouteName.CuratedPackagesReIndex,
+              "curated-feeds/{curatedFeedName}/reindex",
+              new { controller = CuratedPackagesController.ControllerName, action = "ReIndex" });
+
+            routes.MapRoute(
                 RouteName.CuratedPackage,
                 "curated-feeds/{curatedFeedName}/curated-packages/{curatedPackageId}",
                 new { controller = CuratedPackagesController.ControllerName, action = "CuratedPackage" });
