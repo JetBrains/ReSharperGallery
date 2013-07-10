@@ -72,7 +72,8 @@ namespace NuGetGallery
             // Modernizr needs to be delivered at the top of the page but putting it in a bundle gets us a cache-buster.
             // TODO: Use minified modernizr!
             var modernizrBundle = new ScriptBundle("~/bundles/modernizr")
-                .Include("~/Scripts/modernizr-2.0.6-development-only.js");
+//                .Include("~/Scripts/modernizr-2.0.6-development-only.js");
+                .Include("~/Scripts/modernizr-2.6.2.js");
             BundleTable.Bundles.Add(modernizrBundle);
 
             var stylesBundle = new StyleBundle("~/bundles/css")
@@ -91,7 +92,7 @@ namespace NuGetGallery
             Routes.RegisterRoutes(RouteTable.Routes);
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
-
+            
             var config = GlobalConfiguration.Configuration;
             config.Formatters.Remove(config.Formatters.XmlFormatter);
             config.Filters.Add(new ElmahHandleErrorApiAttribute());

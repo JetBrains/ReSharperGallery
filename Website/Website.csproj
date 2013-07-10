@@ -595,6 +595,7 @@
     <Compile Include="Filters\CompressFilter.cs" />
     <Compile Include="Filters\GoogleAnalyticsMeasurementProtocol.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
+    <Compile Include="Helpers\PackageHelper.cs" />
     <Compile Include="Helpers\QuietLog.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\StatisticsHelper.cs" />
@@ -865,6 +866,8 @@
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\AggregateStats.cs" />
     <Compile Include="ViewModels\StatisticsFact.cs" />
+    <Compile Include="ViewModels\StatisticsMonthlyUsageItem.cs" />
+    <Compile Include="ViewModels\StatisticsNuGetUsageItem.cs" />
     <Compile Include="ViewModels\StatisticsPivot.cs" />
     <Compile Include="ViewModels\StatisticsDimension.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
