@@ -181,8 +181,8 @@ html.static body,
 #content-wrapper {
     margin: 0 auto;
     min-height: 100%;
-    min-width: 1110px;
-    width: 1110px;
+    min-width: 960px;
+    width: 960px;
 }
 
 /* General */
@@ -368,7 +368,7 @@ nav.main ul a:hover {
     margin: 0;
     padding: 0;
     text-indent: -9999px;
-    width:480px;
+    width: 480px;
 }
 
 /* User Info */
