@@ -35,6 +35,10 @@
                         {
                             <li class="@statisticsClass"><a href="@Url.Statistics()">Statistics</a></li>
                         }
+                        @if (Request.IsAuthenticated && User.IsInRole(Constants.AdminRoleName))
+                        {
+                            <li class="@adminClass"><a href="@Url.Action("Index", "Home", new { area="Admin" })">Admin</a></li>
+                        }
                     </ul>
                     <div id="searchBox" role="search">
                         <form action="@Url.PackageList()" method="get">
@@ -74,7 +78,11 @@
                     <div class="license">
                         <div>
                         <a href="http://outercurve.org"><img src="@Links.Content.Images.outercurve_png" alt="Outercurve Foundation" /></a>
-                            <p>&copy; @DateTime.UtcNow.Year Outercurve Foundation.</p>
+                            <p>
+                              &copy; @DateTime.UtcNow.Year Outercurve Foundation.
+                              @Html.ActionLink("Terms of Use", "Terms", MVC.Pages.Name). 
+                              @Html.ActionLink("Privacy Policy", "Privacy", MVC.Pages.Name)
+                            </p>
                         </div>
                         <div>
                             <a href="http://www.jetbrains.com"><img src="~/Content/Images/JBlogo.png" alt="JetBrains" /></a>

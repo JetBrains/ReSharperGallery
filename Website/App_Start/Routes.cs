@@ -51,7 +51,7 @@ namespace NuGetGallery
             routes.MapRoute(
                 RouteName.Policies,
                 "policies/{action}",
-                MVC.Pages.Terms());
+                new { controller = MVC.Pages.Name });
 
             var packageListRoute = routes.MapRoute(
                 RouteName.ListPackages,
