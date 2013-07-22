@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using GoogleAnalyticsTracker;
+using GoogleAnalyticsTracker.Web.Mvc;
 using NuGetGallery.Filters;
 
 namespace NuGetGallery.Controllers
 {
-  [GoogleAnalyticsMeasurementProtocol]
   public class InternalController : System.Web.Http.ApiController
   {
     private readonly IPackageService _packageService;

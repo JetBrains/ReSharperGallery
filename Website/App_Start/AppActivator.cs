@@ -9,11 +9,14 @@ using System.Web.Routing;
 using Elmah;
 using Elmah.Contrib.Mvc;
 using Elmah.Contrib.WebApi;
+using GoogleAnalyticsTracker;
+using GoogleAnalyticsTracker.Web;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Ninject;
 using Ninject.Web.Mvc;
 using NuGetGallery;
 using NuGetGallery.Configuration;
+using NuGetGallery.Filters;
 using NuGetGallery.Infrastructure;
 using NuGetGallery.Infrastructure.Jobs;
 using NuGetGallery.Jobs;
@@ -45,7 +48,7 @@ namespace NuGetGallery
             var config = Container.Kernel.Get<IAppConfiguration>();
             DbMigratorPostStart();
             BackgroundJobsPostStart(config);
-            AppPostStart();
+            AppPostStart(config);
             BundlingPostStart();
         }
 
@@ -87,19 +90,23 @@ namespace NuGetGallery
             ServiceCenter.Current = _ => Container.Kernel;
         }
 
-        private static void AppPostStart()
+        private static void AppPostStart(IAppConfiguration configuration)
         {
             Routes.RegisterRoutes(RouteTable.Routes);
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
-            
+
+            var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, new Uri(configuration.SiteRoot).Host, new CookieBasedAnalyticsSession());
+
             var config = GlobalConfiguration.Configuration;
             config.Formatters.Remove(config.Formatters.XmlFormatter);
             config.Filters.Add(new ElmahHandleErrorApiAttribute());
+            config.Filters.Add(new ActionTrackingAttribute(tracker));
 
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
+            GlobalFilters.Filters.Add(new ActionTrackingAttributeMvc(tracker, descriptor => descriptor.ControllerDescriptor.ControllerName == "Api"));
             ValueProviderFactories.Factories.Add(new HttpHeaderValueProviderFactory());
         }
 
