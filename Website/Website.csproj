@@ -97,8 +97,9 @@
     <Reference Include="Glimpse.Mvc4">
       <HintPath>..\packages\Glimpse.Mvc4.1.2.0\lib\net40\Glimpse.Mvc4.dll</HintPath>
     </Reference>
-    <Reference Include="GoogleAnalyticsTracker">
-      <HintPath>..\packages\GoogleAnalyticsTracker.1.6.000\lib\net40\GoogleAnalyticsTracker.dll</HintPath>
+    <Reference Include="GoogleAnalyticsTracker, Version=1.6.5.0, Culture=neutral, PublicKeyToken=04ab204e84b117c0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\GoogleAnalyticsTracker.1.6.005\lib\net40\GoogleAnalyticsTracker.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -598,7 +599,6 @@
     <Compile Include="Entities\PackageFramework.cs" />
     <Compile Include="Entities\ReadOnlyModeException.cs" />
     <Compile Include="Filters\ActionTrackingAttribute.cs" />
-    <Compile Include="Filters\ActionTrackingAttributeMvc.cs" />
     <Compile Include="Filters\CacheFilter.cs" />
     <Compile Include="Filters\CompressFilter.cs" />
     <Compile Include="Helpers\EnumHelper.cs" />
