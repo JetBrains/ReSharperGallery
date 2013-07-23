@@ -106,7 +106,7 @@ namespace NuGetGallery
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
-            GlobalFilters.Filters.Add(new ActionTrackingAttribute(tracker, descriptor => descriptor.ControllerDescriptor.ControllerName == "Api"));
+            GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor => descriptor.ControllerDescriptor.ControllerName == "Api"));
             ValueProviderFactories.Factories.Add(new HttpHeaderValueProviderFactory());
         }
 
