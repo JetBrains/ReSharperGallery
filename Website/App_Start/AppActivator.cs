@@ -95,7 +95,7 @@ namespace NuGetGallery
             Routes.RegisterRoutes(RouteTable.Routes);
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
-
+            
             var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, new Uri(configuration.SiteRoot).Host, new CookieBasedAnalyticsSession());
 
             var config = GlobalConfiguration.Configuration;
@@ -105,6 +105,7 @@ namespace NuGetGallery
 
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
+            GlobalFilters.Filters.Add(new AntiForgeryErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
             GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor => descriptor.ControllerDescriptor.ControllerName == "Api"));
             ValueProviderFactories.Factories.Add(new HttpHeaderValueProviderFactory());
