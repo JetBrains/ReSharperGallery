@@ -314,6 +314,7 @@
     <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\CasAuthenticationController.cs" />
     <Compile Include="Controllers\InternalController.cs" />
+    <Compile Include="DataServices\RewriteBaseUrlMessageInspector.cs" />
     <Compile Include="Diagnostics\ConcurrentInMemoryPersistenceStore.cs" />
     <Compile Include="Diagnostics\DiagnosticsService.cs" />
     <Compile Include="Diagnostics\NullDiagnosticsSource.cs" />
