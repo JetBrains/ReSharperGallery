@@ -112,13 +112,14 @@
     string sha = ConfigurationManager.AppSettings["Gallery.ReleaseSha"];
     string branch = ConfigurationManager.AppSettings["Gallery.ReleaseBranch"];
     string time = ConfigurationManager.AppSettings["Gallery.ReleaseTime"];
+    string repository = ConfigurationManager.AppSettings["Gallery.ReleaseRepository"];
     <p id="releaseTag">
         This is the ReSharper Gallery.
         @if (!String.IsNullOrEmpty(sha) && !String.IsNullOrEmpty(branch) && !String.IsNullOrEmpty(time))
         {
             <text>
-                Deployed from <a href="https://github.com/NuGet/NuGetGallery/commit/@sha" title="View the commit.">@sha.Substring(0, Math.Min(sha.Length, 10))</a>.
-                Originally built on <a href="https://github.com/NuGet/NuGetGallery/branches/@branch" title="View the branch.">@branch</a> 
+                Deployed from <a href="@repository/commit/@sha" title="View the commit.">@sha.Substring(0, Math.Min(sha.Length, 10))</a>.
+                Originally built on <a href="@repository/branches/@branch" title="View the branch.">@branch</a> 
                 at @time.
             </text>
         }
