@@ -13,7 +13,7 @@ pushd $env:DEPLOYMENT_SOURCE
 "In Deployment Source: $(Get-Location)"
 $Commit = git rev-parse --short HEAD
 $Branch = $env:branch
-$Date = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTimeOffset]::UtcNow, "Pacific Standard Time")
+$Date = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTimeOffset]::UtcNow, "Russian Standard Time")
 popd
 
 # Load web.config
@@ -24,5 +24,5 @@ if(!(Test-Path $webConfigPath)) {
 $webConfig = [xml](cat $webConfigPath)
 Set-AppSetting $webConfig "Gallery.ReleaseBranch" $Branch
 Set-AppSetting $webConfig "Gallery.ReleaseSha" $Commit
-Set-AppSetting $webConfig "Gallery.ReleaseTime" ($Date.ToString("yyyy-MM-dd hh:mm:ss tt") + " Pacific")
+Set-AppSetting $webConfig "Gallery.ReleaseTime" $Date.ToString("yyyy-MM-dd HH:mm:ss K")
 $webConfig.Save($webConfigPath)
