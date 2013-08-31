@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html> 
+<html lang="en" class="static " data-root="@Href("~/")">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        @RenderSection("OpenGraph", required: false)
+        <title>NuGet Gallery @(String.IsNullOrWhiteSpace(ViewBag.Title) ? "" : "| " + ViewBag.Title)</title>
+        @Styles.Render("~/Content/css")
+        <link href="@Url.Content("~/favicon.ico")" rel="shortcut icon" type="image/x-icon" />
+        @Scripts.Render("~/Scripts/modernizr")
+        @ViewHelpers.AnalyticsScript()
+        @RenderSection("TopScripts", required: false)
+        @ViewHelpers.ReleaseMeta()
+    </head>
+    <body>
+        <div id="service-alert"></div>
+        <div id="outer-wrapper">
+            <div id="content-wrapper">
+                <header class="main">
+                    <div id="logo"><a href="@Url.Home()">ReSharper Gallery</a></div>
+                    @Html.Partial(MVC.Shared.Views.UserDisplay)
+                </header>
+                <nav class="main">
+                    <ul id="menu">
+                        @{
+                            var homeClass = ViewBag.Tab == "Home" ? "current" : "";
+                            var packagesClass = ViewBag.Tab == "Packages" ? "current" : "";
+                            var uploadClass = ViewBag.Tab == "Upload" ? "current" : "";
+                            var statisticsClass = ViewBag.Tab == "Statistics" ? "current" : "";
+                            var adminClass = ViewBag.Tab == "Admin" ? "current" : "";
+                        }
+                        <li class="@homeClass"><a href="@Url.Home()">Home</a></li>
+                        <li class="@packagesClass"><a href="@Url.PackageList()">Packages</a></li>
+                        <li class="@uploadClass"><a href="@Url.UploadPackage()" class="upload">Upload Package</a></li>
+                        @if (StatisticsHelper.IsStatisticsPageAvailable)
+                        {
+                            <li class="@statisticsClass"><a href="@Url.Statistics()">Statistics</a></li>
+                        }
+                        @if (Request.IsAuthenticated && User.IsInRole(Constants.AdminRoleName))
+                        {
+                            <li class="@adminClass"><a href="@Url.Action("Index", "Home", new { area="Admin" })">Admin</a></li>
+                        }
+                        <li><a href="http://confluence.jetbrains.com/display/NETCOM/ReSharper+8+Plugin+Development">Documentation</a></li>
+                    </ul>
+                    <div id="searchBox" role="search">
+                        <form action="@Url.PackageList()" method="get">
+                            <input name="q" id="searchBoxInput" placeholder="Search Packages" value="@(String.IsNullOrEmpty(ViewBag.SearchTerm) ? "" : ViewBag.SearchTerm)" />
+                            <input id="searchBoxSubmit" type="submit" value=" " />
+                        </form>
+                    </div>
+                </nav>
+                <div id="body" role="main">
+                    @if (TempData.ContainsKey("Message"))
+                    {
+                        <p class="message">@TempData["Message"]</p>
+                    }
+                    @RenderBody()
+                </div>
+            </div>
+            <div id="layout-footer" class="group">
+                <footer id="footer">
+                    <ul class="recommended">
+                        <li>
+                            <a href="@Url.Action(MVC.Pages.Contact())">Contact Us</a>
+                            <p>Got questions about Extension Manager or the ReSharper Gallery?</p>
+                        </li>
+                        <li>
+                            <a href="http://www.jetbrains.com/">JetBrains</a>
+                            <p>World's Leading Vendor of Professional Development Tools</p>
+                        </li>
+                        <li>
+                            <a href="http://www.jetbrains.com/resharper/">ReSharper</a>
+                            <p>Productivity tool for .NET developers that makes Microsoft Visual Studio a much better IDE</p>
+                        </li>
+                        <li>
+                            <a href="http://www.jetbrains.com/resharper/features/open_api.html">ReSharper Open API</a>
+                            <p>ReSharper's functionality can be significantly extended with its Open API.</p>
+                        </li>
+                        <li>
+                            <a href="http://docs.nuget.org">NuGet</a>
+                            <p>NuGet is a Visual Studio 2010 extension that makes it easy to add, remove, and update libraries and...</p>
+                        </li>
+                    </ul>
+                    <div class="license">
+                        <a href="http://outercurve.org"><img src="@Links.Content.Images.outercurve_png" alt="Outercurve Foundation" /></a>
+                        <p>
+                            &copy; @DateTime.UtcNow.Year Outercurve Foundation. 
+                            @Html.ActionLink("Terms of Use", "Terms", MVC.Pages.Name). 
+                            @Html.ActionLink("Privacy Policy", "Privacy", MVC.Pages.Name)
+                        </p>
+                        <p>
+                            Uses <a href="http://fontawesome.io">Font Awesome</a> by Dave Gandy
+                        </p>
+                        @ViewHelpers.ReleaseTag()
+                    </div>
+                </footer>
+            </div>
+        </div>
+        @Scripts.Render("~/Scripts/all")
+        @RenderSection("BottomScripts", required: false)
+    </body>
+</html>
