@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using GoogleAnalyticsTracker;
-using GoogleAnalyticsTracker.Web.Mvc;
-using NuGetGallery.Filters;
+using MvcHaack.Ajax;
 
 namespace NuGetGallery.Controllers
 {
-  public class InternalController : System.Web.Http.ApiController
+  public class InternalController : JsonController
   {
     private readonly IPackageService _packageService;
 
@@ -17,7 +15,6 @@ namespace NuGetGallery.Controllers
       _packageService = packageService;
     }
 
-    [System.Web.Http.HttpGet]
     public IEnumerable<object> Packages(bool includePrerelease = false)
     {
       return _packageService
@@ -42,13 +39,13 @@ namespace NuGetGallery.Controllers
         {
           Name = string.IsNullOrEmpty(_.Title) ? _.Id : _.Title,
           Description = _.Description,
-          Owners = _.Owners.Select(__ => new { owner = __, url = Url.Link(null, MVC.Users.Profiles(__).GetRouteValueDictionary()) }),
+          Owners = _.Owners.Select(__ => new { owner = __, url = Url.RouteUrl(MVC.Users.Profiles(__).GetRouteValueDictionary()) }),
           Compatible_versions = _.Dependencies,
           Tags = (_.Tags ?? "").Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(__ => new { tag = __ }),
           Last_update = _.LastUpdated,
           Last_version = _.Version,
           Downloads = _.DownloadCount,
-          URLs = new { project = _.ProjectUrl, license = _.LicenseUrl, contact = Url.Link(null, MVC.Packages.ContactOwners(_.Id).GetRouteValueDictionary()) },
+          URLs = new { project = _.ProjectUrl, license = _.LicenseUrl, contact = Url.RouteUrl(MVC.Packages.ContactOwners(_.Id).GetRouteValueDictionary()) },
           Logo = _.IconUrl
         });
     }

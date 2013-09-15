@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Data.Entity;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Elmah;
 using Elmah.Contrib.Mvc;
-using Elmah.Contrib.WebApi;
 using GoogleAnalyticsTracker;
 using GoogleAnalyticsTracker.Web;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
+using MvcHaack.Ajax;
 using Ninject;
 using Ninject.Web.Mvc;
 using NuGetGallery;
 using NuGetGallery.Configuration;
-using NuGetGallery.Filters;
 using NuGetGallery.Infrastructure;
 using NuGetGallery.Infrastructure.Jobs;
 using NuGetGallery.Jobs;
-using NuGetGallery.Migrations;
 using WebActivator;
 using WebBackgrounder;
 
@@ -101,16 +96,15 @@ namespace NuGetGallery
             
             var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, new Uri(configuration.SiteRoot).Host, new CookieBasedAnalyticsSession());
 
-            var config = GlobalConfiguration.Configuration;
-            config.Formatters.Remove(config.Formatters.XmlFormatter);
-            config.Filters.Add(new ElmahHandleErrorApiAttribute());
-            config.Filters.Add(new ActionTrackingAttribute(tracker));
-
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new AntiForgeryErrorFilter());
             GlobalFilters.Filters.Add(new RequireRemoteHttpsAttribute() { OnlyWhenAuthenticated = true });
-            GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor => descriptor.ControllerDescriptor.ControllerName == "Api"));
+            GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor =>
+            {
+              var controllerType = descriptor.ControllerDescriptor.ControllerType;
+              return typeof(ApiController).IsAssignableFrom(controllerType) || typeof(JsonController).IsAssignableFrom(controllerType);
+            }));
             ValueProviderFactories.Factories.Add(new HttpHeaderValueProviderFactory());
         }
 
@@ -162,12 +156,7 @@ namespace NuGetGallery
         {
             DynamicModuleUtility.RegisterModule(typeof(OnePerRequestModule));
             DynamicModuleUtility.RegisterModule(typeof(HttpApplicationInitializationModule));
-            NinjectBootstrapper.Initialize(() =>
-            {
-              var kernel = Container.Kernel;
-              GlobalConfiguration.Configuration.DependencyResolver = new Ninject.WebApi.DependencyResolver.NinjectDependencyResolver(kernel);
-              return kernel;
-            });
+            NinjectBootstrapper.Initialize(() => Container.Kernel);
         }
 
         private static void NinjectStop()

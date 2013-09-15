@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Formatting;
-using System.Web.Http;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 using MvcHaack.Ajax;
 using RouteMagic;
@@ -309,11 +307,10 @@ namespace NuGetGallery
                     new { controller = MVC.Api.Name, action = "GetPackageApi", version = UrlParameter.Optional }),
                 permanent: true).To(downloadRoute);
 
-            routes.MapHttpRoute(
+            routes.MapRoute(
               name: "InternalApi",
-              routeTemplate: "api/internal/{action}",
-              defaults: new { controller = "Internal" },
-              constraints: new { httpMethod = new HttpMethodConstraint("GET") });
+              url: "api/internal/{action}",
+              defaults: new { controller = "Internal" });
         }
 
         // note: Pulled out service route registration separately because it's not testable T.T (won't run outside IIS/WAS) 
