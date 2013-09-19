@@ -98,9 +98,9 @@ namespace NuGetGallery.FunctionTests.Helpers
             return message;
         }
 
-        private const string ContactOwnerMailDefaultSubject = @"[NuGet Gallery] Message for owners of the package";
-        private const string AccountConfirmationMailSubject = @"[NuGet Gallery] Please verify your account";
-        private const string GalleryTeamSignatureInMailBOdy = "Thanks, The NuGet Gallery Team";
+        private const string ContactOwnerMailDefaultSubject = @"[ReSharper Gallery] Message for owners of the package";
+        private const string AccountConfirmationMailSubject = @"[ReSharper Gallery] Please verify your account";
+        private const string GalleryTeamSignatureInMailBOdy = "Thanks, The ReSharper Gallery Team";
         #endregion PrivateMembers
     }
 }

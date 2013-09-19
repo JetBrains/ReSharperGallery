@@ -9,7 +9,7 @@
     <head runat="server">
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>NuGet Gallery Database Administration</title>
+        <title>ReSharper Gallery Database Administration</title>
         <%: Styles.Render("~/Content/css") %>
         <link href="~/favicon.ico" runat="server" rel="shortcut icon" type="image/x-icon" />
         <%: Scripts.Render("~/Scripts/modernizr") %>
@@ -32,7 +32,7 @@
     <div id="outer-wrapper">
         <div style="padding-left: 2em; padding-right: 2em;">
             <header class="main">
-                <div id="logo"><a href="~/" runat="server">NuGet Gallery</a></div>
+                <div id="logo"><a href="~/" runat="server">ReSharper Gallery</a></div>
             </header>
             <nav class="main">
                 <ul id="menu">
