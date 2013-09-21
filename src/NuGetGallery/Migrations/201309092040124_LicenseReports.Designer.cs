@@ -5,13 +5,13 @@ namespace NuGetGallery.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    public sealed partial class AddPackageEditLastErrorColumn : IMigrationMetadata
+    public sealed partial class LicenseReports : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageEditLastErrorColumn));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(LicenseReports));
         
         string IMigrationMetadata.Id
         {
-            get { return "201308201916523_AddPackageEditLastErrorColumn"; }
+            get { return "201309092040124_LicenseReports"; }
         }
         
         string IMigrationMetadata.Source
