@@ -820,7 +820,7 @@
     <Compile Include="Migrations\SqlResourceMigration.cs" />
     <Compile Include="PackageCurators\IAutomaticPackageCurator.cs" />
     <Compile Include="PackageCurators\AutomaticPackageCurator.cs" />
-    <Compile Include="PackageCurators\ProductPackageCurator.cs" />
+    <Compile Include="PackageCurators\RequiredDependencyPackageCurator.cs" />
     <Compile Include="PackageCurators\TagBasedPackageCurator.cs" />
     <Compile Include="PackageCurators\WebMatrixPackageCurator.cs" />
     <Compile Include="PackageCurators\Windows8PackageCurator.cs" />

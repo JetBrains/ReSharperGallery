@@ -6,7 +6,7 @@ using NuGetGallery.Packaging;
 
 namespace NuGetGallery
 {
-  public class ProductPackageCurator : AutomaticPackageCurator
+  public class RequiredDependencyPackageCurator : AutomaticPackageCurator
   {
     private static readonly Regex curatedFeedNameParser = new Regex(@"(?<name>[a-z][0-9a-z-]*)(_v(?<version>\d+.*))?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
