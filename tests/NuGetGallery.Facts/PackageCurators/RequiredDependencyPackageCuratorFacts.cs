@@ -117,6 +117,36 @@ namespace NuGetGallery.PackageCurators
                     Times.Once());
             }
 
+            [Theory]
+            [InlineData("3.0", true)]
+            [InlineData("3.0.1", true)]
+            [InlineData("[3.0.1]", true)]
+            [InlineData("[3.0.1, 3.0.3]", true)]
+            [InlineData("3.1", false)]
+            [InlineData("(3.0.0, 3.1]", true)]
+            [InlineData("(3.0.3, 3.1]", true)]
+            [InlineData("[3.0-alpha1, 3.1]", true)]
+            [InlineData("[3.0.3-alpha1, 3.1]", true)]
+            [InlineData("[3.1-alpha1, 4.0]", false)]
+            public void WillIgnorePatchLevelWhenComparingSemanticVersions(string versionSpec, bool shouldInclude)
+            {
+                var curator = new TestableRequiredDependencyPackageCurator();
+                var package = CreateStubGalleryPackage();
+                AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, versionSpec);
+
+                curator.Curate(package, null, commitChanges: true);
+
+                curator.StubCuratedFeedService.Verify(
+                    stub => stub.CreatedCuratedPackage(
+                        curator.StubCuratedFeed,
+                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<string>(),
+                        It.IsAny<bool>()),
+                    shouldInclude ? Times.Once() : Times.Never());
+            }
+
             [Fact]
             public void WillSetTheAutomaticBitWhenIncludingThePackage()
             {

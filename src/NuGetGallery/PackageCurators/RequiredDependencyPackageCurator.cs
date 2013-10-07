@@ -27,7 +27,7 @@ namespace NuGetGallery
       {
         if (!dependency.Id.Equals(curatedFeedData.Id, StringComparison.OrdinalIgnoreCase))
           continue; // not satisfied by name
-        if ((curatedFeedData.Version != null) && !VersionUtility.ParseVersionSpec(dependency.VersionSpec).Satisfies(curatedFeedData.Version))
+        if (!CuratedFeedSatisfiesDependency(curatedFeedData.Version, dependency))
           continue; // not satisfied by version
         var curatedFeedService = GetService<ICuratedFeedService>();
         var curatedFeed = curatedFeedService.GetFeedByName(curatedFeedData.Name, includePackages: true);
@@ -43,6 +43,34 @@ namespace NuGetGallery
             commitChanges: commitChanges);
         }
       }
+    }
+
+    private static bool CuratedFeedSatisfiesDependency(SemanticVersion curatedFeedVersion, PackageDependency dependency)
+    {
+      if (curatedFeedVersion == null)
+        return false;
+
+      IVersionSpec dependencyVersionSpec;
+      if (!VersionUtility.TryParseVersionSpec(dependency.VersionSpec, out dependencyVersionSpec))
+        return false;
+
+      return dependencyVersionSpec.Satisfies(curatedFeedVersion)
+        || StripPatchLevel(dependencyVersionSpec).Satisfies(curatedFeedVersion);
+    }
+
+    private static IVersionSpec StripPatchLevel(IVersionSpec dependencyVersionSpec)
+    {
+      // Given a curatedFeedVersion of 8.0, make [8.0.1] work. Semver says the patch
+      // level should be backwards compatible, so this should be safe
+      var spec = new VersionSpec
+      {
+        IsMinInclusive = true,
+        MinVersion =
+          new SemanticVersion(dependencyVersionSpec.MinVersion.Version.Major,
+            dependencyVersionSpec.MinVersion.Version.Minor, 0, 0)
+      };
+
+      return spec;
     }
   }
 }
