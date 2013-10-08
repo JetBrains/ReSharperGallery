@@ -204,6 +204,7 @@
     <Compile Include="Infrastructure\PackageIndexEntityFacts.cs" />
     <Compile Include="Infrastructure\LuceneSearchServiceFacts.cs" />
     <Compile Include="Infrastructure\NuGetQueryParserFacts.cs" />
+    <Compile Include="PackageCurators\RequiredDependencyPackageCuratorFacts.cs" />
     <Compile Include="PackageCurators\Windows8PackageCuratorFacts.cs" />
     <Compile Include="PackageCurators\WebMatrixPackageCuratorFacts.cs" />
     <Compile Include="PolicyFacts.cs" />

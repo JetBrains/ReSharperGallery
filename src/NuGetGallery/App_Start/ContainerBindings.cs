@@ -196,7 +196,7 @@ namespace NuGetGallery
             Bind<IAutomaticPackageCurator>()
                 .To<Windows8PackageCurator>();
             Bind<IAutomaticPackageCurator>()
-                .To<ProductPackageCurator>();
+                .To<RequiredDependencyPackageCurator>();
 
             // todo: bind all commands by convention
             Bind<IAutomaticallyCuratePackageCommand>()
