@@ -117,6 +117,30 @@ namespace NuGetGallery.PackageCurators
                     Times.Once());
             }
 
+            [Fact]
+            public void WillIncludeThePackageWhenCuratedFeedDoesNotIncludeVersion()
+            {
+                var curator = new TestableRequiredDependencyPackageCurator
+                {
+                    StubCuratedFeed = {Name = TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId}
+                };
+
+                var package = CreateStubGalleryPackage();
+                AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "1.0");
+
+                curator.Curate(package, null, commitChanges: true);
+
+                curator.StubCuratedFeedService.Verify(
+                    stub => stub.CreatedCuratedPackage(
+                        curator.StubCuratedFeed,
+                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<string>(),
+                        It.IsAny<bool>()),
+                    Times.Once());
+            }
+
             [Theory]
             [InlineData("3.0", true)]
             [InlineData("3.0.1", true)]

@@ -27,7 +27,7 @@ namespace NuGetGallery
       {
         if (!dependency.Id.Equals(curatedFeedData.Id, StringComparison.OrdinalIgnoreCase))
           continue; // not satisfied by name
-        if (!CuratedFeedSatisfiesDependency(curatedFeedData.Version, dependency))
+        if (!CuratedFeedWantsAllVersions(curatedFeedData.Version) && !CuratedFeedSatisfiesDependency(curatedFeedData.Version, dependency))
           continue; // not satisfied by version
         var curatedFeedService = GetService<ICuratedFeedService>();
         var curatedFeed = curatedFeedService.GetFeedByName(curatedFeedData.Name, includePackages: true);
@@ -45,11 +45,14 @@ namespace NuGetGallery
       }
     }
 
+    private static bool CuratedFeedWantsAllVersions(SemanticVersion curatedFeedVersion)
+    {
+      // If we don't have a version, we want all versions
+      return curatedFeedVersion == null;
+    }
+
     private static bool CuratedFeedSatisfiesDependency(SemanticVersion curatedFeedVersion, PackageDependency dependency)
     {
-      if (curatedFeedVersion == null)
-        return false;
-
       IVersionSpec dependencyVersionSpec;
       if (!VersionUtility.TryParseVersionSpec(dependency.VersionSpec, out dependencyVersionSpec))
         return false;
