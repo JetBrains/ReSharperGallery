@@ -45,7 +45,7 @@ namespace NuGetGallery
             public Mock<IIdentity> StubIdentity { get; private set; }
             public PackageRegistration StubPackageRegistration { get; private set; }
 
-            protected override IIdentity Identity
+            public override IIdentity Identity
             {
                 get { return StubIdentity.Object; }
             }

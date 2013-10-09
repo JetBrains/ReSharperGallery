@@ -104,7 +104,7 @@ namespace NuGetGallery
             return version == null ? EnsureTrailingSlash(result) : result;
         }
 
-        public static string PackageDeafultIcon(this UrlHelper url)
+        public static string PackageDefaultIcon(this UrlHelper url)
         {
             string protocol = url.RequestContext.HttpContext.Request.IsSecureConnection ? "https" : "http";
             string result = url.RouteUrl(RouteName.Home, null, protocol: protocol);
@@ -122,19 +122,51 @@ namespace NuGetGallery
             return version == null ? EnsureTrailingSlash(result) : result;
         }
 
-        public static string LogOn(this UrlHelper url, string returnUrl = null)
+        public static string LogOn(this UrlHelper url)
         {
-            return url.RouteUrl(RouteName.Authentication, new { action = "LogOn", returnUrl });
+            return url.RouteUrl(RouteName.Authentication, new { action = "LogOn" });
+        }
+
+        public static string LogOn(this UrlHelper url, string returnUrl)
+        {
+            return url.RouteUrl(RouteName.Authentication, new { action = "LogOn", returnUrl = returnUrl });
+        }
+
+        public static string ConfirmationRequired(this UrlHelper url)
+        {
+            return url.Action("ConfirmationRequired", controllerName: "Users");
         }
 
         public static string LogOff(this UrlHelper url, string returnUrl = null)
         {
-            return url.RouteUrl(RouteName.Authentication, new { action = "LogOff", returnUrl });
+            // If we're logging off from the Admin Area, don't set a return url
+            if (String.Equals(url.RequestContext.RouteData.DataTokens["area"].ToStringOrNull(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                returnUrl = String.Empty;
+            }
+            
+            // T4MVC doesn't set area to "", but we need it to, otherwise it thinks this is an intra-area link.
+            return url.RouteUrl(RouteName.Authentication, new { area = "", action = "LogOff", returnUrl = returnUrl ?? url.Current()});
+        }
+
+        public static string Privacy(this UrlHelper url)
+        {
+            return url.Action("Privacy", MVC.Pages.Name);
+        }
+
+        public static string Register(this UrlHelper url)
+        {
+            return url.Action(MVC.Authentication.LogOn());
         }
 
         public static string Search(this UrlHelper url, string searchTerm)
         {
             return url.RouteUrl(RouteName.ListPackages, new { q = searchTerm });
+        }
+
+        public static string Terms(this UrlHelper url)
+        {
+            return url.Action("Terms", MVC.Pages.Name);
         }
 
         public static string UploadPackage(this UrlHelper url)

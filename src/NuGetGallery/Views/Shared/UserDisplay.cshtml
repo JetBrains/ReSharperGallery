@@ -3,14 +3,16 @@
     string returnUrl = ViewData.ContainsKey(Constants.ReturnUrlViewDataKey) ? (string)ViewData[Constants.ReturnUrlViewDataKey] : Request.RawUrl;
     if (!User.Identity.IsAuthenticated)
     {
-      <span class="welcome"><a href="@Url.LogOn(returnUrl)">Log On</a></span>
-      <a href="https://account.jetbrains.com/secured/RegisterForm?userOriginUrl=@Url.Encode(DotNetCasClient.Utils.UrlUtil.ConstructLoginRedirectUrl(DotNetCasClient.CasAuthentication.Gateway, DotNetCasClient.CasAuthentication.Renew))" class="register">Register</a>
+        <span class="welcome">
+            <a href="@Url.LogOn(returnUrl)">Sign in</a>
+        </span>
     }
     else
     {
-        <span class="welcome"><a href="@Url.Action(MVC.Users.Account())">@User.Identity.Name</a></span>
+        <span class="welcome"><a href="@Url.Action(MVC.Users.Account())">@(User.Identity.Name)</a></span>
+        <text>/</text>
         <span class="user-actions">
-            <a href="@Url.LogOff(returnUrl)">Log Off</a> 
+            <a href="@Url.LogOff(returnUrl)">Sign out</a>
         </span>
     }
 }

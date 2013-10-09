@@ -11,7 +11,7 @@ using GoogleAnalyticsTracker.Web;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using MvcHaack.Ajax;
 using Ninject;
-using Ninject.Web.Mvc;
+using Ninject.Web.Common;
 using NuGetGallery;
 using NuGetGallery.Configuration;
 using NuGetGallery.Infrastructure;
@@ -161,8 +161,8 @@ namespace NuGetGallery
 
         private static void NinjectPreStart()
         {
-            DynamicModuleUtility.RegisterModule(typeof(OnePerRequestModule));
-            DynamicModuleUtility.RegisterModule(typeof(HttpApplicationInitializationModule));
+            DynamicModuleUtility.RegisterModule(typeof(OnePerRequestHttpModule));
+            DynamicModuleUtility.RegisterModule(typeof(NinjectHttpModule));
             NinjectBootstrapper.Initialize(() => Container.Kernel);
         }
 
