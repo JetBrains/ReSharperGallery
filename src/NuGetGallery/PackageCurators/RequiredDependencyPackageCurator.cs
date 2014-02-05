@@ -53,6 +53,10 @@ namespace NuGetGallery
 
     private static bool CuratedFeedSatisfiesDependency(SemanticVersion curatedFeedVersion, PackageDependency dependency)
     {
+      var dependencyVersion = dependency.VersionSpec;
+      if (dependencyVersion == null)
+        return true;
+
       IVersionSpec dependencyVersionSpec;
       if (!VersionUtility.TryParseVersionSpec(dependency.VersionSpec, out dependencyVersionSpec))
         return false;
