@@ -195,6 +195,8 @@ namespace NuGetGallery.PackageCurators
             [Theory]
             [InlineData(TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.1")]
             [InlineData(TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "4.0")]
+            [InlineData(TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "[2.0,2.9]")]
+            [InlineData(TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "[2.0,3.0)")]
             public void WillNotIncludeThePackageWhenTheDependencyVersionSpecDoesNotMatch(string dependentPackageId, string versionSpec)
             {
                 var curator = new TestableRequiredDependencyPackageCurator();

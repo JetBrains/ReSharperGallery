@@ -74,7 +74,9 @@ namespace NuGetGallery
         IsMinInclusive = true,
         MinVersion =
           new SemanticVersion(dependencyVersionSpec.MinVersion.Version.Major,
-            dependencyVersionSpec.MinVersion.Version.Minor, 0, 0)
+            dependencyVersionSpec.MinVersion.Version.Minor, 0, 0),
+        IsMaxInclusive = dependencyVersionSpec.IsMaxInclusive,
+        MaxVersion = dependencyVersionSpec.MaxVersion
       };
 
       return spec;
