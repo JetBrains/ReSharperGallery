@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Microsoft.Owin;
 using Moq;
 using Ninject;
 using Ninject.Activation;
@@ -14,19 +15,24 @@ using Ninject.MockingKernel;
 using Ninject.MockingKernel.Moq;
 using Ninject.Modules;
 using Ninject.Planning.Bindings;
+using NuGetGallery.Auditing;
+using NuGetGallery.Authentication;
 
 namespace NuGetGallery.Framework
 {
     internal class UnitTestBindings : NinjectModule
     {
-        internal static IKernel CreateContainer()
+        internal static IKernel CreateContainer(bool autoMock)
         {
-            var kernel = new TestKernel(new UnitTestBindings());
+            var kernel = autoMock ? new TestKernel(new UnitTestBindings(), new AuthNinjectModule()) : new StandardKernel(new UnitTestBindings());
             return kernel;
         }
 
         public override void Load()
         {
+            Bind<AuditingService>()
+                .ToConstant(new TestAuditingService());
+
             Bind<HttpContextBase>()
                 .ToMethod(_ =>
                 {
@@ -58,6 +64,19 @@ namespace NuGetGallery.Framework
                     mockService.Setup(u => u.FindByUsername(Fakes.Admin.Username)).Returns(Fakes.Admin);
                     return mockService.Object;
                 })
+                .InSingletonScope();
+
+            Bind<IEntitiesContext>()
+                .ToMethod(_ =>
+                {
+                    var ctxt = new FakeEntitiesContext();
+                    Fakes.ConfigureEntitiesContext(ctxt);
+                    return ctxt;
+                })
+                .InSingletonScope();
+
+            Bind<IOwinContext>()
+                .ToMethod(_ => Fakes.CreateOwinContext())
                 .InSingletonScope();
         }
 

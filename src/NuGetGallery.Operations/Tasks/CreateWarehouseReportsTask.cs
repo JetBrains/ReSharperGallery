@@ -27,11 +27,6 @@ namespace NuGetGallery.Operations
         [Option("Re-create all reports", AltName = "all")]
         public bool All { get; set; }
 
-        protected override SqlConnectionStringBuilder GetConnectionFromEnvironment(DeploymentEnvironment environment)
-        {
-          return environment.WarehouseDatabase;
-        }
-
         public override void ExecuteCommand()
         {
             Log.Info("Generate reports begin");
@@ -278,8 +273,7 @@ namespace NuGetGallery.Operations
             foreach (object[] row in data.Item2)
             {
                 string packageVersion = (string)row[0];
-                int downloads = (int)row[row.Length - 1];
-
+                
                 JObject childReport;
                 JToken token;
                 if (items.TryGetValue(packageVersion, out token))
@@ -531,11 +525,11 @@ namespace NuGetGallery.Operations
                     action();
                     break;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (attempts == 1)
                     {
-                        throw e;
+                        throw;
                     }
                     else
                     {

@@ -1,5 +1,4 @@
-﻿
-namespace NuGetGallery.FunctionalTests.WebUITests.PackageManagement
+﻿namespace NuGetGallery.FunctionalTests.WebUITests.PackageManagement
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.VisualStudio.TestTools.WebTesting;
@@ -35,6 +34,14 @@ namespace NuGetGallery.FunctionalTests.WebUITests.PackageManagement
 
             WebTestRequest uploadRequest = AssertAndValidationHelper.GetHttpRequestForUrl(UrlHelper.UploadPageUrl);
             yield return uploadRequest;
+            if (this.LastResponse.ResponseUri.ToString().Contains("verify-upload"))
+            {
+                WebTestRequest cancelGet = AssertAndValidationHelper.GetCancelGetRequest();
+                yield return cancelGet;
+                cancelGet = null;
+                uploadRequest = AssertAndValidationHelper.GetHttpRequestForUrl(UrlHelper.UploadPageUrl);
+                yield return uploadRequest;
+            }
             uploadRequest = null;
 
             //Upload a new package.   
@@ -54,8 +61,9 @@ namespace NuGetGallery.FunctionalTests.WebUITests.PackageManagement
 
             WebTestRequest verifyUploadPostRequest = AssertAndValidationHelper.GetVerifyPackagePostRequestForPackage(this, packageId, "1.0.0");
             yield return verifyUploadPostRequest;
-            verifyUploadPostRequest = null;          
+            verifyUploadPostRequest = null;
 
         }
     }
 }
+

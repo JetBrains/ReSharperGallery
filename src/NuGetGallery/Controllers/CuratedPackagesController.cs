@@ -49,7 +49,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (curatedFeed.Managers.All(manager => manager.Username != Identity.Name))
+            if (curatedFeed.Managers.All(manager => manager.Username != User.Identity.Name))
             {
                 return new HttpStatusCodeResult(403);
             }
@@ -76,7 +76,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (curatedFeed.Managers.All(manager => manager.Username != Identity.Name))
+            if (curatedFeed.Managers.All(manager => manager.Username != User.Identity.Name))
             {
                 return new HttpStatusCodeResult(403);
             }
@@ -107,7 +107,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (curatedFeed.Managers.All(manager => manager.Username != Identity.Name))
+            if (curatedFeed.Managers.All(manager => manager.Username != User.Identity.Name))
             {
                 return new HttpStatusCodeResult(403);
             }
@@ -137,7 +137,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (curatedFeed.Managers.All(manager => manager.Username != Identity.Name))
+            if (curatedFeed.Managers.All(manager => manager.Username != User.Identity.Name))
             {
                 return new HttpStatusCodeResult(403);
             }

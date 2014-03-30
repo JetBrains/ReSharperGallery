@@ -45,18 +45,12 @@ namespace NuGetGallery
         public string Copyright { get; set; }
 
         public bool HasPendingMetadata { get; private set; }
-        
-        public bool IsLatestVersionAvailable
+
+        public bool HasNewerPrerelease
         {
             get
             {
-                // A package can be identified as the latest available a few different ways
-                // First, if it's marked as the latest stable version
-                return LatestStableVersion
-                       // Or if it's marked as the latest version (pre-release)
-                       || LatestVersion
-                       // Or if it's the current version and no version is marked as the latest (because they're all unlisted)
-                       || (IsCurrent(this) && !PackageVersions.Any(p => p.LatestVersion));
+                return PackageVersions.Any(pv => pv.LatestVersion && !pv.LatestStableVersion);
             }
         }
     }

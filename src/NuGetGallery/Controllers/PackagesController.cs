@@ -34,7 +34,6 @@ namespace NuGetGallery
         private readonly IPackageFileService _packageFileService;
         private readonly ISearchService _searchService;
         private readonly IUploadFileService _uploadFileService;
-        private readonly IUserService _userService;
         private readonly IEntitiesContext _entitiesContext;
         private readonly IIndexingService _indexingService;
         private readonly ICacheService _cacheService;
@@ -43,7 +42,6 @@ namespace NuGetGallery
         public PackagesController(
             IPackageService packageService,
             IUploadFileService uploadFileService,
-            IUserService userService,
             IMessageService messageService,
             ISearchService searchService,
             IAutomaticallyCuratePackageCommand autoCuratedPackageCmd,
@@ -57,7 +55,6 @@ namespace NuGetGallery
         {
             _packageService = packageService;
             _uploadFileService = uploadFileService;
-            _userService = userService;
             _messageService = messageService;
             _searchService = searchService;
             _autoCuratedPackageCmd = autoCuratedPackageCmd;
@@ -74,7 +71,7 @@ namespace NuGetGallery
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
         public virtual ActionResult UploadPackageProgress()
         {
-            string username = GetUser().Identity.Name;
+            string username = User.Identity.Name;
 
             AsyncFileUploadProgress progress = _cacheService.GetProgress(username);
             if (progress == null)
@@ -96,7 +93,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (!package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(403, "Forbidden");
             }
@@ -144,7 +141,7 @@ namespace NuGetGallery
         [RequiresAccountConfirmation("upload a package")]
         public async virtual Task<ActionResult> UploadPackage()
         {
-            var currentUser = _userService.FindByUsername(GetUser().Identity.Name);
+            var currentUser = GetCurrentUser();
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
             {
@@ -159,11 +156,11 @@ namespace NuGetGallery
 
         [HttpPost]
         [Authorize]
-        [RequiresAccountConfirmation("upload a package")]
         [ValidateAntiForgeryToken]
+        [RequiresAccountConfirmation("upload a package")]
         public virtual async Task<ActionResult> UploadPackage(HttpPostedFileBase uploadFile)
         {
-            var currentUser = _userService.FindByUsername(GetUser().Identity.Name);
+            var currentUser = GetCurrentUser();
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
             {
@@ -200,6 +197,28 @@ namespace NuGetGallery
                 finally
                 {
                     _cacheService.RemoveProgress(currentUser.Username);
+                }
+
+                var errors = ManifestValidator.Validate(nuGetPackage).ToArray();
+                if (errors.Length > 0)
+                {
+                    foreach (var error in errors)
+                    {
+                        ModelState.AddModelError(String.Empty, error.ErrorMessage);
+                    }
+                    return View();
+                }
+
+                // Check min client version
+                if (nuGetPackage.Metadata.MinClientVersion > typeof(Manifest).Assembly.GetName().Version)
+                {
+                    ModelState.AddModelError(
+                        String.Empty, 
+                        String.Format(
+                            CultureInfo.CurrentCulture,
+                            Strings.UploadPackage_MinClientVersionOutOfRange,
+                            nuGetPackage.Metadata.MinClientVersion));
+                    return View();
                 }
 
                 var packageRegistration = _packageService.FindPackageRegistrationById(nuGetPackage.Metadata.Id);
@@ -243,7 +262,7 @@ namespace NuGetGallery
             }
             var model = new DisplayPackageViewModel(package);
 
-            if (package.IsOwner(GetUser()))
+            if (package.IsOwner(User))
             {
                 // Tell logged-in package owners not to cache the package page, so they won't be confused about the state of pending edits.
                 Response.Cache.SetCacheability(HttpCacheability.NoCache);
@@ -307,7 +326,7 @@ namespace NuGetGallery
             ReportPackageReason.IsFraudulent,
             ReportPackageReason.ViolatesALicenseIOwn,
             ReportPackageReason.ContainsMaliciousCode,
-            ReportPackageReason.HasABug,
+            ReportPackageReason.HasABugOrFailedToInstall,          
             ReportPackageReason.Other
         };
 
@@ -329,7 +348,7 @@ namespace NuGetGallery
 
             if (Request.IsAuthenticated)
             {
-                var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
+                var user = GetCurrentUser();
 
                 // If user logged on in as owner a different tab, then clicked the link, we can redirect them to ReportMyPackage
                 if (package.IsOwner(user))
@@ -359,7 +378,7 @@ namespace NuGetGallery
         [RequiresAccountConfirmation("contact support about your package")]
         public virtual ActionResult ReportMyPackage(string id, string version)
         {
-            var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
+            var user = GetCurrentUser();
 
             var package = _packageService.FindPackageByIdAndVersion(id, version);
 
@@ -369,7 +388,7 @@ namespace NuGetGallery
             }
 
             // If user hit this url by constructing it manually but is not the owner, redirect them to ReportAbuse
-            if (!(HttpContext.User.IsInRole(Constants.AdminRoleName) || package.IsOwner(user)))
+            if (!(User.IsInRole(Constants.AdminRoleName) || package.IsOwner(user)))
             {
                 return RedirectToAction(ActionNames.ReportAbuse, new { id, version });
             }
@@ -390,6 +409,9 @@ namespace NuGetGallery
         [ValidateSpamPrevention]
         public virtual ActionResult ReportAbuse(string id, string version, ReportAbuseViewModel reportForm)
         {
+            // Html Encode the message
+            reportForm.Message = System.Web.HttpUtility.HtmlEncode(reportForm.Message);
+
             if (!ModelState.IsValid)
             {
                 return ReportAbuse(id, version);
@@ -405,7 +427,7 @@ namespace NuGetGallery
             MailAddress from;
             if (Request.IsAuthenticated)
             {
-                user = _userService.FindByUsername(HttpContext.User.Identity.Name);
+                user = GetCurrentUser();
                 from = user.ToMailAddress();
             }
             else
@@ -437,6 +459,9 @@ namespace NuGetGallery
         [ValidateSpamPrevention]
         public virtual ActionResult ReportMyPackage(string id, string version, ReportAbuseViewModel reportForm)
         {
+            // Html Encode the message
+            reportForm.Message = System.Web.HttpUtility.HtmlEncode(reportForm.Message);
+
             if (!ModelState.IsValid)
             {
                 return ReportMyPackage(id, version);
@@ -448,7 +473,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
+            var user = GetCurrentUser();
             MailAddress from = user.ToMailAddress();
 
             _messageService.ReportMyPackage(
@@ -488,10 +513,13 @@ namespace NuGetGallery
 
         [HttpPost]
         [Authorize]
-        [RequiresAccountConfirmation("contact package owners")]
         [ValidateAntiForgeryToken]
+        [RequiresAccountConfirmation("contact package owners")]
         public virtual ActionResult ContactOwners(string id, ContactOwnersViewModel contactForm)
         {
+            // Html Encode the message
+            contactForm.Message = System.Web.HttpUtility.HtmlEncode(contactForm.Message);
+
             if (!ModelState.IsValid)
             {
                 return ContactOwners(id);
@@ -503,10 +531,10 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            var user = _userService.FindByUsername(GetUser().Identity.Name);
+            var user = GetCurrentUser();
             var fromAddress = new MailAddress(user.EmailAddress, user.Username);
             _messageService.SendContactOwnersMessage(
-                fromAddress, package, contactForm.Message, Url.Action(MVC.Users.Edit(), protocol: Request.Url.Scheme));
+                fromAddress, package, contactForm.Message, Url.Action(MVC.Users.Account(), protocol: Request.Url.Scheme));
 
             string message = String.Format(CultureInfo.CurrentCulture, "Your message has been sent to the owners of {0}.", id);
             TempData["Message"] = message;
@@ -527,12 +555,12 @@ namespace NuGetGallery
             {
                 return HttpNotFound();
             }
-            if (!package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
 
-            var model = new ManagePackageOwnersViewModel(package, HttpContext.User);
+            var model = new ManagePackageOwnersViewModel(package, User);
 
             return View(model);
         }
@@ -564,7 +592,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            if (!package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(403, "Forbidden");
             }
@@ -587,8 +615,9 @@ namespace NuGetGallery
 
         [Authorize]
         [HttpPost]
-        [RequiresAccountConfirmation("edit a package")]
+        [ValidateInput(false)] // Security note: Disabling ASP.Net input validation which does things like disallow angle brackets in submissions. See http://go.microsoft.com/fwlink/?LinkID=212874
         [ValidateAntiForgeryToken]
+        [RequiresAccountConfirmation("edit a package")]
         public virtual ActionResult Edit(string id, string version, EditPackageRequest formData, string returnUrl)
         {
             var package = _packageService.FindPackageByIdAndVersion(id, version);
@@ -597,12 +626,12 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
-            if (user == null || !package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(403, "Forbidden");
             }
 
+            var user = GetCurrentUser();
             if (!ModelState.IsValid)
             {
                 formData.PackageId = package.PackageRegistration.Id;
@@ -624,7 +653,7 @@ namespace NuGetGallery
                 _entitiesContext.SaveChanges();
             }
 
-            return Redirect(RedirectHelper.SafeRedirectUrl(Url, returnUrl ?? Url.Package(id, version)));
+            return SafeRedirect(returnUrl ?? Url.Package(id, version));
         }
 
         [Authorize]
@@ -651,17 +680,7 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            var user = _userService.FindByUsername(username);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-
-            if (!String.Equals(user.Username, User.Identity.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return new HttpStatusCodeResult(403);
-            }
-
+            var user = GetCurrentUser();
             ConfirmOwnershipResult result = _packageService.ConfirmPackageOwner(package, user, token);
 
             var model = new PackageOwnerConfirmationModel
@@ -680,7 +699,7 @@ namespace NuGetGallery
             {
                 return HttpNotFound();
             }
-            if (!package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
@@ -713,7 +732,7 @@ namespace NuGetGallery
             {
                 return HttpNotFound();
             }
-            if (!package.IsOwner(HttpContext.User))
+            if (!package.IsOwner(User))
             {
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
@@ -726,7 +745,7 @@ namespace NuGetGallery
         [RequiresAccountConfirmation("upload a package")]
         public virtual async Task<ActionResult> VerifyPackage()
         {
-            var currentUser = _userService.FindByUsername(GetUser().Identity.Name);
+            var currentUser = GetCurrentUser();
 
             IPackageMetadata packageMetadata;
             using (Stream uploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
@@ -748,60 +767,42 @@ namespace NuGetGallery
                     // Log the exception in case we get support requests about it.
                     QuietLog.LogHandledException(e);
 
-                    return View(Views.UnverifiablePackage);
+                    return View("UnverifiablePackage");
                 }
             }
 
-            return View(
-                new VerifyPackageRequest
-                {
-                    Id = packageMetadata.Id,
-                    Version = packageMetadata.Version.ToNormalizedStringSafe(),
-                    LicenseUrl = packageMetadata.LicenseUrl.ToStringSafe(),
-                    Listed = true,
-                    Edit = new EditPackageVersionRequest
-                    {
-                        Authors = packageMetadata.Authors.Flatten(),
-                        Copyright = packageMetadata.Copyright,
-                        Description = packageMetadata.Description,
-                        IconUrl = packageMetadata.IconUrl.ToStringSafe(),
-                        ProjectUrl = packageMetadata.ProjectUrl.ToStringSafe(),
-                        ReleaseNotes = packageMetadata.ReleaseNotes,
-                        RequiresLicenseAcceptance = packageMetadata.RequireLicenseAcceptance,
-                        Summary = packageMetadata.Summary,
-                        Tags = PackageHelper.ParseTags(packageMetadata.Tags),
-                        VersionTitle = packageMetadata.Title,
-                    }
-                });
-        }
-
-        // The easiest way of keeping unit tests working.
-        [NonAction]
-        internal virtual Task<ActionResult> VerifyPackage(bool? listed)
-        {
-            return VerifyPackage(new VerifyPackageRequest { Listed = listed.GetValueOrDefault(true), Edit = null });
-        }
-
-        // Determine whether an 'Edit' string submitted differs from one read from the package.
-        private static bool IsDifferent(string posted, string package)
-        {
-            if (String.IsNullOrEmpty(posted) || String.IsNullOrEmpty(package))
+            var model = new VerifyPackageRequest
             {
-                return String.IsNullOrEmpty(posted) != String.IsNullOrEmpty(package);
-            }
-
-            // Compare non-empty strings
-            // Ignore those pesky '\r' characters which screw up comparisons.
-            return !String.Equals(posted.Replace("\r", ""), package.Replace("\r", ""), StringComparison.Ordinal);
+                Id = packageMetadata.Id,
+                Version = packageMetadata.Version.ToNormalizedStringSafe(),
+                LicenseUrl = packageMetadata.LicenseUrl.ToEncodedUrlStringOrNull(),
+                Listed = true,
+                Edit = new EditPackageVersionRequest
+                {
+                    Authors = packageMetadata.Authors.Flatten(),
+                    Copyright = packageMetadata.Copyright,
+                    Description = packageMetadata.Description,
+                    IconUrl = packageMetadata.IconUrl.ToEncodedUrlStringOrNull(),
+                    LicenseUrl = packageMetadata.LicenseUrl.ToEncodedUrlStringOrNull(),
+                    ProjectUrl = packageMetadata.ProjectUrl.ToEncodedUrlStringOrNull(),
+                    ReleaseNotes = packageMetadata.ReleaseNotes,
+                    RequiresLicenseAcceptance = packageMetadata.RequireLicenseAcceptance,
+                    Summary = packageMetadata.Summary,
+                    Tags = PackageHelper.ParseTags(packageMetadata.Tags),
+                    VersionTitle = packageMetadata.Title,
+                }
+            };
+            return View(model);
         }
 
         [Authorize]
         [HttpPost]
         [RequiresAccountConfirmation("upload a package")]
         [ValidateAntiForgeryToken]
+        [ValidateInput(false)] // Security note: Disabling ASP.Net input validation which does things like disallow angle brackets in submissions. See http://go.microsoft.com/fwlink/?LinkID=212874
         public virtual async Task<ActionResult> VerifyPackage(VerifyPackageRequest formData)
         {
-            var currentUser = _userService.FindByUsername(GetUser().Identity.Name);
+            var currentUser = GetCurrentUser();
 
             Package package;
             using (Stream uploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
@@ -831,8 +832,8 @@ namespace NuGetGallery
                 {
                     pendEdit = pendEdit || formData.Edit.RequiresLicenseAcceptance != nugetPackage.Metadata.RequireLicenseAcceptance;
 
-                    pendEdit = pendEdit || IsDifferent(formData.Edit.IconUrl, nugetPackage.Metadata.IconUrl.ToStringSafe());
-                    pendEdit = pendEdit || IsDifferent(formData.Edit.ProjectUrl, nugetPackage.Metadata.ProjectUrl.ToStringSafe());
+                    pendEdit = pendEdit || IsDifferent(formData.Edit.IconUrl, nugetPackage.Metadata.IconUrl.ToEncodedUrlStringOrNull());
+                    pendEdit = pendEdit || IsDifferent(formData.Edit.ProjectUrl, nugetPackage.Metadata.ProjectUrl.ToEncodedUrlStringOrNull());
 
                     pendEdit = pendEdit || IsDifferent(formData.Edit.Authors, nugetPackage.Metadata.Authors.Flatten());
                     pendEdit = pendEdit || IsDifferent(formData.Edit.Copyright, nugetPackage.Metadata.Copyright);
@@ -894,16 +895,43 @@ namespace NuGetGallery
         [ValidateAntiForgeryToken]
         public virtual async Task<ActionResult> CancelUpload()
         {
-            var currentUser = _userService.FindByUsername(GetUser().Identity.Name);
+            var currentUser = GetCurrentUser();
             await _uploadFileService.DeleteUploadFileAsync(currentUser.Key);
 
             return RedirectToAction("UploadPackage");
         }
 
-        // this methods exist to make unit testing easier
-        protected internal virtual IPrincipal GetUser()
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public virtual ActionResult SetLicenseReportVisibility(string id, string version, bool visible)
         {
-            return User;
+            return SetLicenseReportVisibility(id, version, visible, Url.Package);
+        }
+
+        internal virtual ActionResult SetLicenseReportVisibility(string id, string version, bool visible, Func<Package, string> urlFactory)
+        {
+            var package = _packageService.FindPackageByIdAndVersion(id, version);
+            if (package == null)
+            {
+                return HttpNotFound();
+            }
+            if (!package.IsOwner(User))
+            {
+                return new HttpStatusCodeResult(401, "Unauthorized");
+            }
+
+            _packageService.SetLicenseReportVisibility(package, visible);
+
+            TempData["Message"] = String.Format(
+                CultureInfo.CurrentCulture,
+                "The license report for this package has been {0}. It may take several hours for this change to propagate through our system.",
+                visible ? "enabled" : "disabled");
+
+            // Update the index
+            _indexingService.UpdatePackage(package);
+
+            return Redirect(urlFactory(package));
         }
 
         // this methods exist to make unit testing easier
@@ -926,38 +954,17 @@ namespace NuGetGallery
             }
         }
 
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public virtual ActionResult SetLicenseReportVisibility(string id, string version, bool visible)
+        // Determine whether an 'Edit' string submitted differs from one read from the package.
+        private static bool IsDifferent(string posted, string package)
         {
-            return SetLicenseReportVisibility(id, version, visible, Url.Package);
-        }
-
-        internal virtual ActionResult SetLicenseReportVisibility(string id, string version, bool visible, Func<Package, string> urlFactory)
-        {
-            var package = _packageService.FindPackageByIdAndVersion(id, version);
-            if (package == null)
+            if (String.IsNullOrEmpty(posted) || String.IsNullOrEmpty(package))
             {
-                return HttpNotFound();
-            }
-            if (!package.IsOwner(HttpContext.User))
-            {
-                return new HttpStatusCodeResult(401, "Unauthorized");
+                return String.IsNullOrEmpty(posted) != String.IsNullOrEmpty(package);
             }
 
-            _packageService.SetLicenseReportVisibility(package, visible);
-
-            TempData["Message"] = String.Format(
-                CultureInfo.CurrentCulture,
-                "The license report for this package has been {0}. It may take several hours for this change to propagate through our system.",
-                visible ? "enabled" : "disabled");
-
-            // Update the index
-            _indexingService.UpdatePackage(package);
-
-            return Redirect(urlFactory(package));
+            // Compare non-empty strings
+            // Ignore those pesky '\r' characters which screw up comparisons.
+            return !String.Equals(posted.Replace("\r", ""), package.Replace("\r", ""), StringComparison.Ordinal);
         }
     }
 }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NuGetGallery
 {
     public interface IUserService
     {
-        User Create(string username, string password, string emailAddress);
-
-        void UpdateProfile(User user, bool emailAllowed);
-
-        User FindByApiKey(Guid apiKey);
+        void ChangeEmailSubscription(User user, bool emailAllowed);
 
         User FindByEmailAddress(string emailAddress);
 
@@ -19,20 +16,8 @@ namespace NuGetGallery
 
         User FindByUsername(string username);
 
-        User FindByUsernameAndPassword(string username, string password);
+        Task<bool> ConfirmEmailAddress(User user, string token);
 
-        User FindByUsernameOrEmailAddressAndPassword(string usernameOrEmail, string password);
-
-        string GenerateApiKey(string username);
-
-        bool ConfirmEmailAddress(User user, string token);
-
-        void ChangeEmailAddress(User user, string newEmailAddress);
-
-        bool ChangePassword(string username, string oldPassword, string newPassword);
-
-        User GeneratePasswordResetToken(string usernameOrEmail, int tokenExpirationMinutes);
-
-        bool ResetPasswordWithToken(string username, string token, string newPassword);
+        Task ChangeEmailAddress(User user, string newEmailAddress);
     }
 }

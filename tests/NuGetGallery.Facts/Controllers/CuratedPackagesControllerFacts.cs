@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Principal;
+using System.Web;
 using System.Web.Mvc;
 using Moq;
-using NuGetGallery.Commands;
+using NuGetGallery.Framework;
 using Xunit;
 
 namespace NuGetGallery
@@ -17,12 +18,10 @@ namespace NuGetGallery
             public TestableCuratedPackagesController()
             {
                 StubCuratedFeed = new CuratedFeed
-                    { Key = 0, Name = "aFeedName", Managers = new HashSet<User>(new[] { new User { Username = "aUsername" } }) };
-                StubIdentity = new Mock<IIdentity>();
+                    { Key = 0, Name = "aFeedName", Managers = new HashSet<User>(new[] { Fakes.User }) };
                 StubPackageRegistration = new PackageRegistration { Key = 0, Id = "anId" };
 
-                StubIdentity.Setup(stub => stub.IsAuthenticated).Returns(true);
-                StubIdentity.Setup(stub => stub.Name).Returns("aUsername");
+                OwinContext = Fakes.CreateOwinContext();
 
                 EntitiesContext = new FakeEntitiesContext();
                 EntitiesContext.CuratedFeeds.Add(StubCuratedFeed);
@@ -38,17 +37,12 @@ namespace NuGetGallery
                     curatedFeedRepository,
                     curatedPackageRepository);
 
-                base.AutoCuratedPackageCmd = new AutomaticallyCuratePackageCommandFacts.TestableAutomaticallyCuratePackageCommand();
+                var httpContext = new Mock<HttpContextBase>();
+                TestUtility.SetupHttpContextMockForUrlGeneration(httpContext, this);
             }
 
             public CuratedFeed StubCuratedFeed { get; set; }
-            public Mock<IIdentity> StubIdentity { get; private set; }
             public PackageRegistration StubPackageRegistration { get; private set; }
-
-            public override IIdentity Identity
-            {
-                get { return StubIdentity.Object; }
-            }
         }
 
         public class TheDeleteCuratedPackageAction
@@ -57,6 +51,7 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedFeedDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 
                 var result = controller.DeleteCuratedPackage("aStrangeCuratedFeedName", "anId");
 
@@ -67,6 +62,7 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedPackageDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Packages = new[] { new CuratedPackage { PackageRegistration = new PackageRegistration() } };
 
                 var result = controller.DeleteCuratedPackage("aFeedName", "aStrangeCuratedPackageId");
@@ -78,9 +74,7 @@ namespace NuGetGallery
             public void WillReturn403IfTheUserNotAManager()
             {
                 var controller = new TestableCuratedPackagesController();
-                controller.StubIdentity
-                    .Setup(i => i.Name)
-                    .Returns("notAManager");
+                controller.SetCurrentUser(Fakes.Owner);
 
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
@@ -101,6 +95,7 @@ namespace NuGetGallery
             public void WillDeleteTheCuratedPackageWhenRequestIsValid()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
@@ -124,6 +119,7 @@ namespace NuGetGallery
             public void WillReturn204AfterDeletingTheCuratedPackage()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
@@ -147,6 +143,7 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedFeedDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 var result = controller.GetCreateCuratedPackageForm("aWrongFeedName");
 
@@ -157,8 +154,8 @@ namespace NuGetGallery
             public void WillReturn403IfTheCurrentUsersIsNotAManagerOfTheCuratedFeed()
             {
                 var controller = new TestableCuratedPackagesController();
-                controller.StubIdentity.Setup(stub => stub.Name).Returns("notAManager");
-
+                controller.SetCurrentUser(Fakes.Owner);
+                
                 var result = controller.GetCreateCuratedPackageForm("aFeedName") as HttpStatusCodeResult;
 
                 Assert.NotNull(result);
@@ -169,6 +166,7 @@ namespace NuGetGallery
             public void WillPushTheCuratedFeedNameIntoTheViewBag()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Name = "theCuratedFeedName";
 
                 var result = controller.GetCreateCuratedPackageForm("theCuratedFeedName") as ViewResult;
@@ -184,7 +182,8 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedFeedDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
-                
+                controller.SetCurrentUser(Fakes.User);
+   
                 var result = controller.PatchCuratedPackage("aWrongFeedName", "anId", 
                     new ModifyCuratedPackageRequest());
 
@@ -195,6 +194,7 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedPackageDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 var result = controller.PatchCuratedPackage("aFeedName", "aWrongId", new ModifyCuratedPackageRequest());
 
@@ -205,9 +205,7 @@ namespace NuGetGallery
             public void WillReturn403IfNotAFeedManager()
             {
                 var controller = new TestableCuratedPackagesController();
-                controller.StubIdentity
-                    .Setup(i => i.Name)
-                    .Returns("notAManager");
+                controller.SetCurrentUser(Fakes.Owner);
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
                     {
@@ -228,6 +226,7 @@ namespace NuGetGallery
             public void WillReturn400IfTheModelStateIsInvalid()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
                     {
@@ -251,6 +250,7 @@ namespace NuGetGallery
             public void WillModifyTheCuratedPackageWhenRequestIsValid()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
                     {
@@ -277,6 +277,7 @@ namespace NuGetGallery
             public void WillReturn204AfterModifyingTheCuratedPackage()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage
                     {
@@ -301,6 +302,7 @@ namespace NuGetGallery
             public void WillReturn404IfTheCuratedFeedDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 var result = controller.PostCuratedPackages(
                     "aWrongFeedName", 
@@ -313,7 +315,7 @@ namespace NuGetGallery
             public void WillReturn403IfTheCurrentUsersIsNotAManagerOfTheCuratedFeed()
             {
                 var controller = new TestableCuratedPackagesController();
-                controller.StubIdentity.Setup(stub => stub.Name).Returns("notAManager");
+                controller.SetCurrentUser(Fakes.Owner);
 
                 var result = controller.PostCuratedPackages(
                     "aFeedName",
@@ -328,6 +330,7 @@ namespace NuGetGallery
             public void WillPushTheCuratedFeedNameIntoTheViewBagAndShowTheCreateCuratedPackageFormWithErrorsWhenModelStateIsInvalid()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Name = "theCuratedFeedName";
                 controller.ModelState.AddModelError("", "anError");
 
@@ -343,6 +346,7 @@ namespace NuGetGallery
             public void WillPushTheCuratedFeedNameIntoTheViewBagAndShowTheCreateCuratedPackageFormWithErrorsWhenThePackageIdDoesNotExist()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 var result = controller.PostCuratedPackages("aFeedName",
                     new CreateCuratedPackageRequest { PackageId = "aWrongId" }) as ViewResult;
@@ -357,6 +361,7 @@ namespace NuGetGallery
             public void WillCreateTheCuratedPackage()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 controller.PostCuratedPackages(
                     "aFeedName",
@@ -377,6 +382,7 @@ namespace NuGetGallery
             public void WillRedirectToTheCuratedFeedRouteAfterCreatingTheCuratedPackage()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
 
                 var result = controller.PostCuratedPackages(
                     "aFeedName", new CreateCuratedPackageRequest { PackageId = "anId" }) 
@@ -390,6 +396,7 @@ namespace NuGetGallery
             public void WillShowAnErrorWhenThePackageHasAlreadyBeenCurated()
             {
                 var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
                 controller.StubCuratedFeed.Packages.Add(
                     new CuratedPackage { 
                         CuratedFeed = controller.StubCuratedFeed,

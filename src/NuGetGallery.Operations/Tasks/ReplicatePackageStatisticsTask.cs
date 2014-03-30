@@ -104,7 +104,8 @@ namespace NuGetGallery.Operations
                         FROM PackageStatistics 
                         INNER JOIN Packages ON PackageStatistics.PackageKey = Packages.[Key] 
                         INNER JOIN PackageRegistrations ON PackageRegistrations.[Key] = Packages.PackageRegistrationKey 
-                        WHERE PackageStatistics.[Key] > @originalKey 
+                        WHERE PackageStatistics.[Key] > @originalKey
+                        ORDER BY PackageStatistics.[Key] 
                     ";
 
                     SqlCommand command = new SqlCommand(sql, connection);
@@ -195,6 +196,7 @@ namespace NuGetGallery.Operations
             do
             {
                 int originalKey = GetLastOriginalKey(destination);
+                Log.Trace("replicating records since {0}", originalKey);
 
                 DateTime before = DateTime.Now;
                 DownloadBatch batch = GetDownloadRecords(source, originalKey, batchSize);
@@ -206,7 +208,10 @@ namespace NuGetGallery.Operations
                 if (batch.Rows.Count > 0)
                 {
                     hasWork = true;
-                    PutDownloadRecords(destination, batch, CancellationToken);
+                    if (!WhatIf)
+                    {
+                        PutDownloadRecords(destination, batch, CancellationToken);
+                    }
 
                     if (CancellationToken.IsCancellationRequested)
                     {
