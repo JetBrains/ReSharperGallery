@@ -53,13 +53,13 @@ header.main { height: 95px; }
 }
 
 #logo a {
-    background: url(../Content/Logos/nugetlogo.png) no-repeat;
+    background: url(../Content/Images/resharperlogo.png) no-repeat;
     display: block;
     height: 75px;
     margin: 0;
     padding: 0;
     text-indent: -9999px;
-    width: 345px;
+    width: 480px;
 }
 
 /* Top Menu (Navigation) */
@@ -83,11 +83,11 @@ nav.main ul li {
 }
 
 nav.main ul li.current a {
-    background-color: #e4f1f7;
+    background-color: #f3ecf0;
     border: 1px solid #ebf2f5;
     border-bottom: none;
     border-top: 1px solid #fff;
-    color: #195670;
+    color: #7e255b;
     height: 46px;
     line-height: 44px;
     position: relative;
@@ -191,8 +191,8 @@ nav.main ul a:hover {
 .clear-fix { clear: both; }
 
 #layout-footer {
-    background: #e4f1f7;
-    border-top: 1px solid #d3e7fe;
+    background: #f3ecf0;
+    border-top: 1px solid #e0e0e0;
     clear: both;
     color: #3e483c;
     padding-bottom: 1em;
@@ -206,7 +206,7 @@ footer#footer {
     display: table;
 }
 
-footer#footer a { color: #3e483c; }
+footer#footer a { color: #7e255b; }
 
 footer#footer a:hover {
     text-decoration: underline;
@@ -259,7 +259,7 @@ footer#footer div.license {
 }
 
 /* Outer Content Wrapper (background image) */
-
+html.static body,
 #outer-wrapper {
     background: url('../Content/Images/headerbackground.png') repeat-x top left #fff;
 }

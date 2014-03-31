@@ -1327,3 +1327,15 @@ ul.accordian {
     display: inline-block;
     vertical-align: bottom;
 }
+
+.nucon-jb-w {
+    background: url('images/icons/jb_32_mono_w.png');
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin: 0;
+    margin-left: 3px;
+    margin-right: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}

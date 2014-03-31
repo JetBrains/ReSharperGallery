@@ -96,7 +96,7 @@
     var currentEmailAddress = CurrentUser.UnconfirmedEmailAddress ?? CurrentUser.EmailAddress;
 }
 
-<h1 class="page-heading">My NuGet.org Account</h1>
+<h1 class="page-heading">My @Config.Current.Brand Account</h1>
 
 @if (!String.IsNullOrEmpty(CurrentUser.UnconfirmedEmailAddress) && !String.IsNullOrEmpty(CurrentUser.EmailAddress))
 {
@@ -280,8 +280,8 @@
 @if (hasPassword && credGroups.ContainsKey(CredentialKind.External) && credGroups[CredentialKind.External].Any())
 {
     <p class="message">
-        Because you have a Microsoft account registered you can remove your password below and use
-        that account to sign in to NuGet.org. No more passwords to forget!
+        Because you have a external account registered you can remove your password below and use
+        that account to sign in to @Config.Current.Brand. No more passwords to forget!
     </p>
 }
     
@@ -313,7 +313,7 @@
                     }
                 </text>,
                 content: @<p>
-                    You can use this Microsoft account to sign in to NuGet.org
+                    You can use this JetBrains Account to sign in to @Config.Current.Brand
                 </p>)
         }
     }

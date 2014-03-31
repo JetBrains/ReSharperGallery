@@ -129,9 +129,9 @@
 
 .pending-edit-message,
 .not-latest-message {
-    background-color: #eff7fa;
-    border-color: #52a4ca;
-    color: #52a4ca;
+    background-color: #f3ecf0;
+    border-color: #7e255b;
+    color: #7e255b;
 }
 
 /* Package DependencySets (Display Package) */
@@ -242,15 +242,15 @@ button.undo-button {
 .featured div a.install {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-    background-color: #4585aa;
-    background-image: -ms-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -o-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: -webkit-linear-gradient(top, #4585aa 0%, #376783 100%);
-    background-image: linear-gradient(top, #4585aa 0%, #376783 100%);
-    border: solid 1px #376783;
+    background-color: #dc7fb6;
+    background-image: -ms-linear-gradient(top, #dc7fb6 0%, #b9638f 100%);
+    background-image: -o-linear-gradient(top, #dc7fb6 0%, #b9638f 100%);
+    background-image: -webkit-linear-gradient(top, #dc7fb6 0%, #b9638f 100%);
+    background-image: linear-gradient(top, #dc7fb6 0%, #b9638f 100%);
+    border: solid 1px #ad2467;
     border-radius: 4px;
     box-shadow: inset 0px 0px 1px rgba(255, 255, 255, 1), 1px 1px 1px rgba(0, 0, 0, 0.3);
-    color: #fff;
+    color: #490000;
     display: block;
     font-size: 2em;
     line-height: 2em;
@@ -260,12 +260,7 @@ button.undo-button {
 }
 
 .featured div a.install:hover {
-    background-color: #376783;
-    background-image: -ms-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: -o-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: -webkit-linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    background-image: linear-gradient(top, #64a3c8 0%, #1d4760 100%);
-    border-color: #4585aa;
+    color: #7e255b;
     text-decoration: none;
 }
 
@@ -438,9 +433,9 @@ form .async-upload-progress-advance
 }
 
 #register-policies {
-    background-color: #eff7fa;
+    background-color: #f3ecf0;
     border: solid 1px;
-    color: #52a4ca;
+    color: #7e255b;
     font-size: 1.3em;
     padding: 10px;
 }

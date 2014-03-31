@@ -1,15 +1,12 @@
 ﻿<%@ Master Language="C#" CodeBehind="Site.master.cs" Inherits="NuGetGallery.Areas.Admin.DynamicData.Site" %>
 <%@ Import Namespace="System.Web.Optimization" %>
-<%@ Import Namespace="Ninject" %>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <!DOCTYPE html> 
 <html lang="en" class="static " data-root="<%: ResolveClientUrl("~/") %>"> 
     <head runat="server">
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>ReSharper Gallery Database Administration</title>
+        <title><%: Config.Brand %> Database Administration</title>
         <%: Styles.Render("~/Content/css") %>
         <link href="~/favicon.ico" runat="server" rel="shortcut icon" type="image/x-icon" />
         <%: Scripts.Render("~/Scripts/modernizr") %>
@@ -18,11 +15,9 @@
     </head>
 <body>
     <% 
-        // Cheap and easy DI. Not too clean :)
-        var config = NuGetGallery.Container.Kernel.Get<NuGetGallery.Configuration.AppConfiguration>();
         string cls = "banner-warning";
         string message = "You are working with Live Data. Be careful!";
-        if (String.Equals(config.Environment, "Production"))
+        if (String.Equals(Config.Environment, "Production"))
         {
             cls = "banner-urgent";
             message = "YOU ARE WORKING ON LIVE PRODUCTION DATA. USE EXTREME CAUTION";
@@ -32,7 +27,7 @@
     <div id="outer-wrapper">
         <div style="padding-left: 2em; padding-right: 2em;">
             <header class="main">
-                <div id="logo"><a href="~/" runat="server">ReSharper Gallery</a></div>
+                <div id="logo"><a href="~/" runat="server"><%: Config.Brand %></a></div>
             </header>
             <nav class="main">
                 <ul id="menu">

@@ -69,7 +69,7 @@ namespace NuGetGallery.Operations
             System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
 
             //Set the from and to mail addressess.
-            message.From = new MailAddress(UserAccount, "NuGet Gallery Support");
+            message.From = new MailAddress(UserAccount, "ReSharper Gallery Support");
 
             string[] replyTo = ReplyToList.Split(new char[] { ',' });
             foreach(string replyToAddress in replyTo)

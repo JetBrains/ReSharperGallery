@@ -6,6 +6,7 @@
   <WebRole name="NuGetGallery" vmsize="Medium">
     <ConfigurationSettings>
       <Setting name="Gallery.Brand" />
+      <Setting name="Gallery.GalleryOwner" />
       <Setting name="Gallery.Environment" />
       <Setting name="Gallery.RequireSSL" />
       <Setting name="Gallery.AzureStorageConnectionString" />
@@ -23,6 +24,10 @@
       <Setting name="Auth.MicrosoftAccount.Enabled" />
       <Setting name="Auth.MicrosoftAccount.ClientId" />
       <Setting name="Auth.MicrosoftAccount.ClientSecret" />
+      <Setting name="Auth.JetPass.Enabled" />
+      <Setting name="Auth.JetPass.ClientId" />
+      <Setting name="Auth.JetPass.ClientSecret" />
+      <Setting name="Auth.JetPass.RootUri" />
     </ConfigurationSettings>
     <Sites>
       <Site name="Web">

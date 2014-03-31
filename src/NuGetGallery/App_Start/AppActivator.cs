@@ -172,7 +172,7 @@ namespace NuGetGallery
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
             
-            var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, new Uri(configuration.SiteRoot).Host, new CookieBasedAnalyticsSession());
+            var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, configuration.SiteRoot, new CookieBasedAnalyticsSession());
 
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
