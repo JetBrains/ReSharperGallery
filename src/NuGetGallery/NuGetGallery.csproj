@@ -1100,6 +1100,7 @@
     <Content Include="App_Data\Files\Content\Terms-Of-Use.md" />
     <Content Include="Branding\Views\web.config" />
     <Compile Include="Views\NuGetViewBase.cs" />
+    <Content Include="Content\Images\icons\jb_32_mono_w.png" />
     <Content Include="Views\Shared\LayoutFooter.cshtml" />
     <Content Include="Views\Shared\SiteMenu.cshtml">
       <SubType>Code</SubType>
@@ -1160,29 +1161,9 @@
     <Content Include="Content\font-awesome\font-awesome.min.css" />
     <Content Include="Content\font\fontawesome-webfont.svg" />
     <Content Include="Content\Images\errorPage.png" />
-    <Content Include="Content\Images\editProfile.png" />
     <Content Include="Content\Images\JBlogo.png" />
-    <Content Include="Content\Images\managePackages.png" />
     <Content Include="Content\Images\packageResharper.png" />
     <Content Include="Content\Images\resharperlogo.png" />
-    <Content Include="Content\Images\outercurve.png" />
-    <Content Include="Content\Images\treeview\ajax-loader.gif" />
-    <Content Include="Content\Images\treeview\file.gif" />
-    <Content Include="Content\Images\treeview\folder-closed.gif" />
-    <Content Include="Content\Images\treeview\folder.gif" />
-    <Content Include="Content\Images\treeview\minus.gif" />
-    <Content Include="Content\Images\treeview\plus.gif" />
-    <Content Include="Content\Images\treeview\treeview-black-line.gif" />
-    <Content Include="Content\Images\treeview\treeview-black.gif" />
-    <Content Include="Content\Images\treeview\treeview-default-line.gif" />
-    <Content Include="Content\Images\treeview\treeview-default.gif" />
-    <Content Include="Content\Images\treeview\treeview-famfamfam-line.gif" />
-    <Content Include="Content\Images\treeview\treeview-famfamfam.gif" />
-    <Content Include="Content\Images\treeview\treeview-gray-line.gif" />
-    <Content Include="Content\Images\treeview\treeview-gray.gif" />
-    <Content Include="Content\Images\treeview\treeview-red-line.gif" />
-    <Content Include="Content\Images\treeview\treeview-red.gif" />
-    <Content Include="Content\Images\uploadPackage.png" />
     <Content Include="Content\Logos\outercurve.png" />
     <Content Include="Content\Images\icons\nuget_32_mono_b.png" />
     <Content Include="Content\Images\icons\nuget_32_mono_w.png" />
@@ -1301,6 +1282,7 @@
     <Content Include="Branding\Views\Shared\SiteMenu.cshtml" />
     <Content Include="Branding\Views\Shared\LayoutFooter.cshtml" />
     <None Include="Properties\PublishProfiles\nuget-staging-frontend.pubxml" />
+    <None Include="Properties\PublishProfiles\resharper-plugins.pubxml" />
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />
