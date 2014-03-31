@@ -245,6 +245,12 @@ footer#footer div.license {
     font-size: .7em;
 }
 
+footer#footer div.license div {
+    display: inline-block;
+    padding: 0;
+    margin: 0 1em;
+}
+
 /* Error Layout (with background image)*/
 
 .error-show-code {

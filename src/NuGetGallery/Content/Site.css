@@ -288,13 +288,13 @@ nav, section {
 }
 
     #logo a {
-        background: url(../Content/Images/nugetlogo.png) no-repeat;
+        background: url(../Content/Images/resharperlogo.png) no-repeat;
         display: block;
         height: 75px;
         margin: 0;
         padding: 0;
         text-indent: -9999px;
-        width: 345px;
+        width: 480px;
     }
 
 /* User Info */
@@ -1235,7 +1235,7 @@ ul.actionlist {
             }
 
             ul.actionlist li.actionlist-item a.actionlist-item-link .actionlist-item-header {
-                color: #0071bc;
+                color: #7e255b;
             }
 
                 ul.actionlist li.actionlist-item a.actionlist-item-link:hover .actionlist-item-header .actionlist-item-header-text {
@@ -1283,9 +1283,14 @@ ul.accordian {
             padding-top: 1em;
         }
 
+          ul.accordian li.accordian-item .accordian-item-content a {
+            color: #b9638f;
+          }
+
         ul.accordian li.accordian-item .accordian-expand-link {
             display: inline-block;
             margin-top: 0.25em;
+            color: #b9638f;
         }
 
         ul.accordian li.accordian-item.accordian-item-disabled {

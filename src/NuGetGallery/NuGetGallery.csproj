@@ -1298,6 +1298,8 @@
     <Content Include="Content\font\fontawesome-webfont.ttf" />
     <Content Include="Content\font\fontawesome-webfont.woff" />
     <Content Include="Content\font\FontAwesome.otf" />
+    <Content Include="Branding\Views\Shared\SiteMenu.cshtml" />
+    <Content Include="Branding\Views\Shared\LayoutFooter.cshtml" />
     <None Include="Properties\PublishProfiles\nuget-staging-frontend.pubxml" />
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
     <Content Include="Scripts\jquery-1.6.4.js" />
