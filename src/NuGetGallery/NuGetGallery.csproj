@@ -98,10 +98,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetCasClient, Version=1.0.2.29157, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\DotNetCasClient.1.0.2\lib\DotNetCasClient.dll</HintPath>
-    </Reference>
     <Reference Include="DynamicData.EFCodeFirstProvider, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\DynamicData.EFCodeFirstProvider.0.3.0.0\lib\net40\DynamicData.EFCodeFirstProvider.dll</HintPath>
