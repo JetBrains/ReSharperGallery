@@ -66,6 +66,10 @@ IF NOT DEFINED MSBUILD_PATH (
 
 echo Handling .NET Web Application deployment.
 
+:: 0. Restore packages
+%MSBUILD_PATH% "%DEPLOYMENT_SOURCE%\build\NuGetGallery.msbuild" /nologo /verbosity:m /t:RestorePackages /p:SolutionDir="%DEPLOYMENT_SOURCE%\.\\"
+IF !ERRORLEVEL! NEQ 0 goto error
+
 :: 1. Build to the temporary path
 %MSBUILD_PATH% "%DEPLOYMENT_SOURCE%\src\NuGetGallery\NuGetGallery.csproj" /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="%DEPLOYMENT_TEMP%";AutoParameterizationWebConfigConnectionStrings=false;Configuration=Release /p:SolutionDir="%DEPLOYMENT_SOURCE%\.\\" %SCM_BUILD_ARGS%
 IF !ERRORLEVEL! NEQ 0 goto error
