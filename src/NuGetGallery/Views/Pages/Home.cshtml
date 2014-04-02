@@ -3,3 +3,10 @@
     ViewBag.Tab = "Home";
 }
 @ViewBag.Content
+@section BottomScripts
+{
+  @Scripts.Render("~/Scripts/stats.js")
+  <script>
+    $(getStats);
+  </script>
+}
