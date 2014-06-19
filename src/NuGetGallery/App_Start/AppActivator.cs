@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Diagnostics;
-using System.IO;
 using System.Security.Claims;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -171,17 +170,21 @@ namespace NuGetGallery
             Routes.RegisterRoutes(RouteTable.Routes);
             Routes.RegisterServiceRoutes(RouteTable.Routes);
             AreaRegistration.RegisterAllAreas();
-            
-            var tracker = new Tracker(configuration.GoogleAnalyticsPropertyId, configuration.SiteRoot, new CookieBasedAnalyticsSession());
 
+            
             GlobalFilters.Filters.Add(new ElmahHandleErrorAttribute());
             GlobalFilters.Filters.Add(new ReadOnlyModeErrorFilter());
             GlobalFilters.Filters.Add(new AntiForgeryErrorFilter());
-            GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor =>
+            var googleAnalyticsId = configuration.GoogleAnalyticsPropertyId;
+            if (googleAnalyticsId != null)
             {
-              var controllerType = descriptor.ControllerDescriptor.ControllerType;
-              return typeof(ApiController).IsAssignableFrom(controllerType) || typeof(JsonController).IsAssignableFrom(controllerType);
-            }));
+              var tracker = new Tracker(googleAnalyticsId, configuration.SiteRoot, new CookieBasedAnalyticsSession());
+              GlobalFilters.Filters.Add(new GoogleAnalyticsTracker.Web.Mvc.ActionTrackingAttribute(tracker, descriptor =>
+              {
+                var controllerType = descriptor.ControllerDescriptor.ControllerType;
+                return typeof (ApiController).IsAssignableFrom(controllerType) || typeof (JsonController).IsAssignableFrom(controllerType);
+              }));
+            }
             ValueProviderFactories.Factories.Add(new HttpHeaderValueProviderFactory());
         }
 
