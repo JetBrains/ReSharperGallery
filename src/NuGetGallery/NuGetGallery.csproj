@@ -1096,6 +1096,7 @@
     <Content Include="App_Data\Files\Content\Terms-Of-Use.md" />
     <Content Include="Branding\Views\web.config" />
     <Compile Include="Views\NuGetViewBase.cs" />
+    <Content Include="Content\Images\extensionManager.png" />
     <Content Include="Content\Images\icons\jb_32_mono_w.png" />
     <Content Include="Views\Shared\LayoutFooter.cshtml" />
     <Content Include="Views\Shared\SiteMenu.cshtml">
@@ -1471,9 +1472,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>80</DevelopmentServerPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://nuget.localtest.me</IISUrl>
+          <IISUrl>http://localhost:55691/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
