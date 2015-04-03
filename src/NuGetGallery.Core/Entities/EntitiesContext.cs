@@ -199,6 +199,13 @@ namespace NuGetGallery
 
             modelBuilder.Entity<CuratedPackage>()
                 .HasRequired(cp => cp.PackageRegistration);
+
+            modelBuilder.Entity<CuratedPackage>()
+                .HasMany<Package>(cpr => cpr.CuratedPackages)
+                .WithMany()
+                .Map(c => c.ToTable("CuratedPackageVersions")
+                           .MapLeftKey("CuratedPackageRegistrationKey")
+                           .MapRightKey("PackageKey"));
         }
 #pragma warning restore 618
     }
