@@ -4,6 +4,9 @@ namespace NuGetGallery
 {
     public class CuratedFeed : IEntity
     {
+        // The key to represent the "master" (non-curated) feed
+        public const int MasterFeedKey = -1;
+
         public CuratedFeed()
         {
             Managers = new HashSet<User>();
