@@ -150,7 +150,9 @@ namespace NuGetGallery
 
             var packageRegistration = EntitiesContext.PackageRegistrations
                 .Where(pr => pr.Id == request.PackageId)
-                .Include(pr => pr.Owners).FirstOrDefault();
+                .Include(pr => pr.Packages)
+                .Include(pr => pr.Owners)
+                .FirstOrDefault();
 
             if (packageRegistration == null)
             {
@@ -166,12 +168,18 @@ namespace NuGetGallery
                 return View("CreateCuratedPackageForm");
             }
 
-            CuratedFeedService.CreatedCuratedPackage(
-                curatedFeed,
-                packageRegistration,
-                included: true,
-                automaticallyCurated: false,
-                notes: request.Notes);
+            var packages = packageRegistration.Packages.ToList();
+            foreach (var package in packages)
+            {
+                CuratedFeedService.CreatedCuratedPackage(
+                    curatedFeed,
+                    package,
+                    included: true,
+                    automaticallyCurated: false,
+                    notes: request.Notes,
+                    commitChanges: false);
+            }
+            EntitiesContext.SaveChanges();
 
             return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeed.Name });
         }

@@ -25,7 +25,7 @@ namespace NuGetGallery
             {
                 GetService<ICuratedFeedService>().CreatedCuratedPackage(
                     curatedFeed,
-                    galleryPackage.PackageRegistration,
+                    galleryPackage,
                     included: true,
                     automaticallyCurated: true,
                     commitChanges: commitChanges);

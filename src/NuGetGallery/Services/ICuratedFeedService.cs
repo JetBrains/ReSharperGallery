@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace NuGetGallery
 {
@@ -9,7 +8,7 @@ namespace NuGetGallery
     {
         CuratedPackage CreatedCuratedPackage(
             CuratedFeed curatedFeed,
-            PackageRegistration packageRegistration,
+            Package package,
             bool included = false,
             bool automaticallyCurated = false,
             string notes = null,

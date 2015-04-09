@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Moq;
 using Xunit;
 
 namespace NuGetGallery.Services
 {
-    class CuratedFeedServiceFacts
+    public class CuratedFeedServiceFacts
     {
         public class TestableCuratedFeedService : CuratedFeedService
         {
@@ -17,6 +14,7 @@ namespace NuGetGallery.Services
             {
                 StubCuratedFeed = new CuratedFeed { Key = 0, Name = "aName" };
                 StubPackageRegistration = new PackageRegistration { Key = 1066, Id = "aPackageId" };
+                StubPackage = new Package() { PackageRegistration = StubPackageRegistration, PackageRegistrationKey = StubPackageRegistration.Key };
 
                 StubCuratedPackage = new CuratedPackage
                 {
@@ -64,6 +62,7 @@ namespace NuGetGallery.Services
             }
 
             public PackageRegistration StubPackageRegistration { get; set; }
+            public Package StubPackage { get; set; }
             public CuratedFeed StubCuratedFeed { get; set; }
             public CuratedPackage StubCuratedPackage { get; set; }
 
@@ -81,7 +80,7 @@ namespace NuGetGallery.Services
                 Assert.Throws<ArgumentNullException>(
                     () => svc.CreatedCuratedPackage(
                         null,
-                        svc.StubPackageRegistration));
+                        svc.StubPackage));
             }
 
             [Fact]
@@ -99,17 +98,18 @@ namespace NuGetGallery.Services
             public void WillAddANewCuratedPackageToTheCuratedFeed()
             {
                 var svc = new TestableCuratedFeedService();
-                svc.StubPackageRegistration.Key = 1066;
+                svc.StubPackageRegistration.Key = 1067;
+                svc.StubPackage.PackageRegistrationKey = svc.StubPackageRegistration.Key;
 
                 svc.CreatedCuratedPackage(
                     svc.StubCuratedFeed,
-                    svc.StubPackageRegistration,
+                    svc.StubPackage,
                     false,
                     true,
                     "theNotes");
 
-                var curatedPackage = svc.StubCuratedFeed.Packages.First();
-                Assert.Equal(1066, curatedPackage.PackageRegistrationKey);
+                var curatedPackage = svc.StubCuratedFeed.Packages.Last();
+                Assert.Equal(1067, curatedPackage.PackageRegistrationKey);
                 Assert.Equal(false, curatedPackage.Included);
                 Assert.Equal(true, curatedPackage.AutomaticallyCurated);
                 Assert.Equal("theNotes", curatedPackage.Notes);
@@ -119,38 +119,39 @@ namespace NuGetGallery.Services
             public void WillSaveTheEntityChanges()
             {
                 var svc = new TestableCuratedFeedService();
+                svc.StubPackageRegistration.Key = 1067;
+                svc.StubPackage.PackageRegistrationKey = svc.StubPackageRegistration.Key;
 
                 svc.CreatedCuratedPackage(
                     svc.StubCuratedFeed,
-                    svc.StubPackageRegistration,
+                    svc.StubPackage,
                     false,
                     true,
                     "theNotes");
 
-                svc.StubCuratedPackageRepository.Verify(stub => stub.InsertOnCommit(It.IsAny<CuratedPackage>()));
-                svc.StubCuratedPackageRepository.Verify(stub => stub.CommitChanges());
+                svc.StubCuratedFeedRepository.Verify(stub => stub.CommitChanges());
             }
 
             [Fact]
             public void WillReturnTheCreatedCuratedPackage()
             {
                 var svc = new TestableCuratedFeedService();
-                svc.StubPackageRegistration.Key = 1066;
+                svc.StubPackageRegistration.Key = 1067;
+                svc.StubPackage.PackageRegistrationKey = svc.StubPackageRegistration.Key;
 
                 var curatedPackage = svc.CreatedCuratedPackage(
                     svc.StubCuratedFeed,
-                    svc.StubPackageRegistration,
+                    svc.StubPackage,
                     false,
                     true,
                     "theNotes");
 
-                Assert.Equal(1066, curatedPackage.PackageRegistrationKey);
+                Assert.Equal(1067, curatedPackage.PackageRegistrationKey);
                 Assert.Equal(false, curatedPackage.Included);
                 Assert.Equal(true, curatedPackage.AutomaticallyCurated);
                 Assert.Equal("theNotes", curatedPackage.Notes);
             }
         }
-
 
         public class TheModifyCuratedPackageMethod
         {
@@ -185,11 +186,11 @@ namespace NuGetGallery.Services
 
                 svc.ModifyCuratedPackage(
                     0,
-                    1066,
+                    0,
                     true);
 
                 Assert.True(svc.StubCuratedPackage.Included);
-                svc.StubCuratedPackageRepository.Verify(stub => stub.CommitChanges());
+                svc.StubCuratedFeedRepository.Verify(stub => stub.CommitChanges());
             }
         }
 
@@ -224,7 +225,7 @@ namespace NuGetGallery.Services
 
                 svc.DeleteCuratedPackage(
                     0,
-                    1066);
+                    0);
 
                 svc.StubCuratedPackageRepository.Verify(stub => stub.DeleteOnCommit(svc.StubCuratedPackage));
                 svc.StubCuratedPackageRepository.Verify(stub => stub.CommitChanges());

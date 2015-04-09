@@ -36,7 +36,7 @@ namespace NuGetGallery
                     {
                         GetService<ICuratedFeedService>().CreatedCuratedPackage(
                             feed, 
-                            galleryPackage.PackageRegistration, 
+                            galleryPackage, 
                             automaticallyCurated: true,
                             commitChanges: commitChanges);
                     }

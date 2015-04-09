@@ -25,7 +25,7 @@ namespace NuGetGallery
 
         public CuratedPackage CreatedCuratedPackage(
             CuratedFeed curatedFeed,
-            PackageRegistration packageRegistration,
+            Package package,
             bool included = false,
             bool automaticallyCurated = false,
             string notes = null,
@@ -36,33 +36,37 @@ namespace NuGetGallery
                 throw new ArgumentNullException("curatedFeed");
             }
 
-            if (packageRegistration == null)
+            if (package == null)
             {
-                throw new ArgumentNullException("packageRegistration");
+                throw new ArgumentNullException("package");
             }
 
-            var curatedPackage = curatedFeed.Packages
-                .SingleOrDefault(cp => cp.PackageRegistrationKey == packageRegistration.Key);
+            var curatedPackageRegistration = curatedFeed.Packages
+                .SingleOrDefault(cp => cp.PackageRegistrationKey == package.PackageRegistration.Key);
 
-            if (curatedPackage == null)
+            if (curatedPackageRegistration == null)
             {
-                curatedPackage = new CuratedPackage
+                curatedPackageRegistration = new CuratedPackage
                 {
-                    PackageRegistration = packageRegistration,
+                    PackageRegistration = package.PackageRegistration,
+                    PackageRegistrationKey = package.PackageRegistrationKey,
                     Included = included,
                     AutomaticallyCurated = automaticallyCurated,
                     Notes = notes,
                 };
 
-                curatedFeed.Packages.Add(curatedPackage);
+                curatedFeed.Packages.Add(curatedPackageRegistration);
             }
+
+            if (!curatedPackageRegistration.CuratedPackages.Any(p => p.Key == package.Key))
+                curatedPackageRegistration.CuratedPackages.Add(package);
 
             if (commitChanges)
             {
                 CuratedFeedRepository.CommitChanges();
             }
 
-            return curatedPackage;
+            return curatedPackageRegistration;
         }
 
         public void DeleteCuratedPackage(
