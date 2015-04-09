@@ -1349,6 +1349,20 @@ namespace NuGetGallery
                 Assert.False(packages.ElementAt(1).IsLatest);
                 Assert.False(packages.ElementAt(1).IsLatestStable);
             }
+
+            [Fact]
+            public void UpdatesCuratedFeedPackageListedState()
+            {
+                var packageRegistration = new PackageRegistration { Id = "theId" };
+                var package = new Package { Version = "1.0", PackageRegistration = packageRegistration, Listed = false };
+                packageRegistration.Packages.Add(package);
+                var curatedFeedService = new Mock<ICuratedFeedService>();
+                var service = CreateService(curatedFeedService: curatedFeedService);
+
+                service.MarkPackageListed(package, commitChanges: true);
+
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
+            }
         }
 
         public class TheMarkPackageUnlistedMethod
@@ -1434,6 +1448,20 @@ namespace NuGetGallery
 
                 Assert.False(package.IsLatest, "IsLatest");
                 Assert.False(package.IsLatestStable, "IsLatestStable");
+            }
+
+            [Fact]
+            public void UpdatesCuratedFeedPackageListedState()
+            {
+                var packageRegistration = new PackageRegistration { Id = "theId" };
+                var package = new Package { Version = "1.0.1", PackageRegistration = packageRegistration, IsLatest = true, IsLatestStable = true };
+                packageRegistration.Packages.Add(package);
+                var curatedFeedService = new Mock<ICuratedFeedService>();
+                var service = CreateService(curatedFeedService: curatedFeedService);
+
+                service.MarkPackageUnlisted(package);
+
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
             }
         }
 
@@ -1716,6 +1744,20 @@ namespace NuGetGallery
                 var service = CreateService();
 
                 Assert.Throws<ArgumentNullException>(() => service.PublishPackage(null));
+            }
+
+            [Fact]
+            public void UpdatesCuratedFeedPackageListedState()
+            {
+                var packageRegistration = new PackageRegistration { Id = "theId" };
+                var package = new Package { Version = "1.0.1", PackageRegistration = packageRegistration, IsLatest = true, IsLatestStable = true };
+                packageRegistration.Packages.Add(package);
+                var curatedFeedService = new Mock<ICuratedFeedService>();
+                var service = CreateService(curatedFeedService: curatedFeedService);
+
+                service.PublishPackage(package);
+
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
             }
         }
 
