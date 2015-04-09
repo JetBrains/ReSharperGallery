@@ -27,6 +27,7 @@ namespace NuGetGallery
         CuratedFeed GetFeedByKey(int key, bool includePackages);
         IEnumerable<CuratedFeed> GetFeedsForManager(int managerKey);
         IQueryable<Package> GetPackages(string curatedFeedName);
+        IQueryable<CuratedPackage> GetCuratedPackages(string curatedFeedName);
         IQueryable<PackageRegistration> GetPackageRegistrations(string curatedFeedName);
         int? GetKey(string curatedFeedName);
         void UpdateIsLatest(PackageRegistration packageRegistration);

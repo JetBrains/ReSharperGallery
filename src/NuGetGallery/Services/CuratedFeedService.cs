@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web;
+using NuGet;
 
 namespace NuGetGallery
 {
@@ -145,6 +145,14 @@ namespace NuGetGallery
             return CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Managers.Any(u => u.Key == managerKey));
         }
+
+        public IQueryable<CuratedPackage> GetCuratedPackages(string curatedFeedName)
+        {
+            var packages = CuratedFeedRepository.GetAll()
+                .Where(cf => cf.Name == curatedFeedName)
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included));
+            return packages;
+        } 
 
         public IQueryable<Package> GetPackages(string curatedFeedName)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using OData.Linq;
@@ -6,6 +7,13 @@ using QueryInterceptor;
 
 namespace NuGetGallery
 {
+    public class PackageWithLatestFlags
+    {
+        public Package Package;
+        public bool IsLatestVersion;
+        public bool IsAbsoluteLatestVersion;
+    }
+
     public static class PackageExtensions
     {
         internal static readonly DateTime UnpublishedDate = new DateTime(1900, 1, 1, 0, 0, 0);
@@ -103,6 +111,58 @@ namespace NuGetGallery
                     LicenseUrl = p.LicenseUrl,
                     LicenseNames = (!includeLicenseReport || p.HideLicenseReport) ? null : p.LicenseNames,
                     LicenseReportUrl = (!includeLicenseReport || p.HideLicenseReport) ? null : p.LicenseReportUrl
+                });
+        }
+
+        public static IQueryable<V2FeedPackage> ToV2FeedPackageQuery(this IQueryable<PackageWithLatestFlags> packages, string siteRoot,
+            bool includeLicenseReport)
+        {
+            return ProjectV2FeedPackage(packages.WithoutNullPropagation(),
+                siteRoot, includeLicenseReport);
+        }
+
+        internal static IQueryable<V2FeedPackage> ProjectV2FeedPackage(this IQueryable<PackageWithLatestFlags> packages, string siteRoot,
+            bool includeLicenseReport)
+        {
+            siteRoot = EnsureTrailingSlash(siteRoot);
+            return packages.Select(p => new V2FeedPackage
+                {
+                    Id = p.Package.PackageRegistration.Id,
+                    Version = p.Package.Version,
+                    NormalizedVersion = p.Package.NormalizedVersion,
+                    Authors = p.Package.FlattenedAuthors,
+                    Copyright = p.Package.Copyright,
+                    Created = p.Package.Created,
+                    Dependencies = p.Package.FlattenedDependencies,
+                    Description = p.Package.Description,
+                    DownloadCount = p.Package.PackageRegistration.DownloadCount,
+                    GalleryDetailsUrl = siteRoot + "packages/" + p.Package.PackageRegistration.Id + "/" + p.Package.NormalizedVersion,
+                    IconUrl = p.Package.IconUrl,
+                    IsLatestVersion = p.IsLatestVersion,
+                    // To maintain parity with v1 behavior of the feed, IsLatestVersion would only be used for stable versions.
+                    IsAbsoluteLatestVersion = p.IsAbsoluteLatestVersion,
+                    IsPrerelease = p.Package.IsPrerelease,
+                    LastUpdated = p.Package.LastUpdated,
+                    Language = p.Package.Language,
+                    PackageHash = p.Package.Hash,
+                    PackageHashAlgorithm = p.Package.HashAlgorithm,
+                    PackageSize = p.Package.PackageFileSize,
+                    ProjectUrl = p.Package.ProjectUrl,
+                    ReleaseNotes = p.Package.ReleaseNotes,
+                    ReportAbuseUrl = siteRoot + "package/ReportAbuse/" + p.Package.PackageRegistration.Id + "/" + p.Package.NormalizedVersion,
+                    RequireLicenseAcceptance = p.Package.RequiresLicenseAcceptance,
+                    Published = p.Package.Listed ? p.Package.Published : UnpublishedDate,
+                    Summary = p.Package.Summary,
+                    Tags = p.Package.Tags,
+                    Title = p.Package.Title,
+                    VersionDownloadCount = p.Package.DownloadCount,
+                    MinClientVersion = p.Package.MinClientVersion,
+                    LastEdited = p.Package.LastEdited,
+
+                    // License Report Information
+                    LicenseUrl = p.Package.LicenseUrl,
+                    LicenseNames = (!includeLicenseReport || p.Package.HideLicenseReport) ? null : p.Package.LicenseNames,
+                    LicenseReportUrl = (!includeLicenseReport || p.Package.HideLicenseReport) ? null : p.Package.LicenseReportUrl
                 });
         }
 

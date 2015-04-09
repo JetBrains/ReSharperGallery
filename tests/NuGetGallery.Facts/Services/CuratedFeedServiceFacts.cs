@@ -231,5 +231,9 @@ namespace NuGetGallery.Services
                 svc.StubCuratedPackageRepository.Verify(stub => stub.CommitChanges());
             }
         }
+
+        // TODO: Tests for UpdateIsLatest
+
+        // TODO: Tests for get packages - should only return curated packages
     }
 }
