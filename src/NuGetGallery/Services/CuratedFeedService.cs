@@ -146,7 +146,8 @@ namespace NuGetGallery
                 .Where(cf => cf.Managers.Any(u => u.Key == managerKey));
         }
 
-        public IQueryable<CuratedPackage> GetCuratedPackages(string curatedFeedName)
+        // I do wish CuratedPackage were called CuratedPackageRegistration
+        public IQueryable<CuratedPackage> GetCuratedPackageRegistrations(string curatedFeedName)
         {
             var packages = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)

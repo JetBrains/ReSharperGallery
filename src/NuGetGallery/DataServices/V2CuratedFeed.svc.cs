@@ -47,7 +47,7 @@ namespace NuGetGallery
                 throw new DataServiceException(404, "Not Found");
             }
 
-            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackages(curatedFeedName);
+            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackageRegistrations(curatedFeedName);
             var packages = ToPackageWithFlags(curatedPackageRegistrations);
 
             return new V2FeedContext
@@ -68,7 +68,7 @@ namespace NuGetGallery
         public IQueryable<V2FeedPackage> FindPackagesById(string id)
         {
             var curatedFeedName = GetCuratedFeedName();
-            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackages(curatedFeedName)
+            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackageRegistrations(curatedFeedName)
                 .Where(p => p.PackageRegistration.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
             return ToPackageWithFlags(curatedPackageRegistrations)
                 .ToV2FeedPackageQuery(Configuration.GetSiteRoot(UseHttps()), Configuration.Features.FriendlyLicenses);
