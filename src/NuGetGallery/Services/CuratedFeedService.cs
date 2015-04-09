@@ -172,5 +172,55 @@ namespace NuGetGallery
 
             return results.Length > 0 ? (int?)results[0] : null;
         }
+
+        public void UpdateIsLatest(PackageRegistration packageRegistration)
+        {
+            var registrations = CuratedPackageRepository.GetAll()
+                .Where(cp => cp.PackageRegistration.Key == packageRegistration.Key)
+                .Include(cp => cp.CuratedPackages).ToList();
+
+            foreach (var registration in registrations)
+            {
+                registration.LatestPackage = null;
+                registration.LatestStablePackage = null;
+                registration.LastUpdated = DateTime.UtcNow;
+
+                // If the last listed package was just unlisted, then we won't find another one
+                var latestPackage = FindPackage(registration.CuratedPackages, p => p.Listed);
+                if (latestPackage != null)
+                {
+                    registration.LatestPackage = latestPackage;
+                    registration.LatestStablePackage = latestPackage;
+                    if (latestPackage.IsPrerelease)
+                    {
+                        // If the newest uploaded package is a prerelease package, we need to find an older package that is 
+                        // a release version and set it to IsLatest.
+                        var latestReleasePackage =
+                            FindPackage(registration.CuratedPackages.Where(p => !p.IsPrerelease && p.Listed));
+                        if (latestReleasePackage != null)
+                        {
+                            registration.LatestStablePackage = latestReleasePackage;
+                        }
+                    }
+                }
+            }
+            CuratedFeedRepository.CommitChanges();
+        }
+
+        private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)
+        {
+            if (predicate != null)
+            {
+                packages = packages.Where(predicate);
+            }
+            SemanticVersion version = packages.Max(p => new SemanticVersion(p.Version));
+
+            if (version == null)
+            {
+                return null;
+            }
+            var v = version.ToString();
+            return packages.First(pv => pv.Version.Equals(v, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

@@ -29,5 +29,6 @@ namespace NuGetGallery
         IQueryable<Package> GetPackages(string curatedFeedName);
         IQueryable<PackageRegistration> GetPackageRegistrations(string curatedFeedName);
         int? GetKey(string curatedFeedName);
+        void UpdateIsLatest(PackageRegistration packageRegistration);
     }
 }

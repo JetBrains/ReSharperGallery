@@ -28,13 +28,18 @@ namespace NuGetGallery
         public virtual ActionResult ReIndex(string curatedFeedName)
         {
           foreach (var package in EntitiesContext.PackageRegistrations
-            .SelectMany(registration => registration.Packages.Where(p => p.IsLatest || p.IsLatestStable))
+            .SelectMany(registration => registration.Packages)
             .Include(package => package.PackageRegistration)
             .ToList())
           {
             AutoCuratedPackageCmd.Execute(package, null, false);
           }
           EntitiesContext.SaveChanges();
+
+          foreach (var packageRegistration in EntitiesContext.PackageRegistrations.ToList())
+          {
+              CuratedFeedService.UpdateIsLatest(packageRegistration);
+          }
 
           return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeedName });
         }
@@ -180,6 +185,8 @@ namespace NuGetGallery
                     commitChanges: false);
             }
             EntitiesContext.SaveChanges();
+
+            CuratedFeedService.UpdateIsLatest(packageRegistration);
 
             return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeed.Name });
         }

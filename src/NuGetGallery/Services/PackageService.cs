@@ -12,6 +12,7 @@ namespace NuGetGallery
     public class PackageService : IPackageService
     {
         private readonly IIndexingService _indexingService;
+        private readonly ICuratedFeedService _curatedFeedService;
         private readonly IEntityRepository<PackageOwnerRequest> _packageOwnerRequestRepository;
         private readonly IEntityRepository<PackageRegistration> _packageRegistrationRepository;
         private readonly IEntityRepository<Package> _packageRepository;
@@ -22,13 +23,15 @@ namespace NuGetGallery
             IEntityRepository<Package> packageRepository,
             IEntityRepository<PackageStatistics> packageStatsRepository,
             IEntityRepository<PackageOwnerRequest> packageOwnerRequestRepository,
-            IIndexingService indexingService)
+            IIndexingService indexingService,
+            ICuratedFeedService curatedFeedService)
         {
             _packageRegistrationRepository = packageRegistrationRepository;
             _packageRepository = packageRepository;
             _packageStatsRepository = packageStatsRepository;
             _packageOwnerRequestRepository = packageOwnerRequestRepository;
             _indexingService = indexingService;
+            _curatedFeedService = curatedFeedService;
         }
 
         public Package CreatePackage(INupkg nugetPackage, User user, bool commitChanges = true)
@@ -325,10 +328,7 @@ namespace NuGetGallery
             package.Listed = false;
             package.LastUpdated = DateTime.UtcNow;
 
-            if (package.IsLatest || package.IsLatestStable)
-            {
-                UpdateIsLatest(package.PackageRegistration);
-            }
+            UpdateIsLatest(package.PackageRegistration);
 
             if (commitChanges)
             {
@@ -587,7 +587,7 @@ namespace NuGetGallery
             }
         }
 
-        private static void UpdateIsLatest(PackageRegistration packageRegistration)
+        private void UpdateIsLatest(PackageRegistration packageRegistration)
         {
             if (!packageRegistration.Packages.Any())
             {
@@ -628,6 +628,8 @@ namespace NuGetGallery
                     latestPackage.IsLatestStable = true;
                 }
             }
+
+            _curatedFeedService.UpdateIsLatest(packageRegistration);
         }
 
         private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)

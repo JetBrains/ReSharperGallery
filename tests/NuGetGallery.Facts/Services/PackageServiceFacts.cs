@@ -87,6 +87,7 @@ namespace NuGetGallery
             Mock<IEntityRepository<PackageStatistics>> packageStatsRepo = null, 
             Mock<IEntityRepository<PackageOwnerRequest>> packageOwnerRequestRepo = null, 
             Mock<IIndexingService> indexingService = null, 
+            Mock<ICuratedFeedService> curatedFeedService = null,
             Action<Mock<PackageService>> setup = null)
         {
             packageRegistrationRepository = packageRegistrationRepository ?? new Mock<IEntityRepository<PackageRegistration>>();
@@ -94,13 +95,15 @@ namespace NuGetGallery
             packageStatsRepo = packageStatsRepo ?? new Mock<IEntityRepository<PackageStatistics>>();
             packageOwnerRequestRepo = packageOwnerRequestRepo ?? new Mock<IEntityRepository<PackageOwnerRequest>>();
             indexingService = indexingService ?? new Mock<IIndexingService>();
+            curatedFeedService = curatedFeedService ?? new Mock<ICuratedFeedService>();
 
             var packageService = new Mock<PackageService>(
                 packageRegistrationRepository.Object,
                 packageRepository.Object,
                 packageStatsRepo.Object,
                 packageOwnerRequestRepo.Object,
-                indexingService.Object);
+                indexingService.Object,
+                curatedFeedService.Object);
 
             packageService.CallBase = true;
 
