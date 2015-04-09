@@ -42,7 +42,7 @@ namespace NuGetGallery
 
             var package = CreatePackageFromNuGetPackage(packageRegistration, nugetPackage, user);
             packageRegistration.Packages.Add(package);
-            UpdateIsLatest(packageRegistration);
+            UpdateIsLatest(packageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -65,7 +65,7 @@ namespace NuGetGallery
             var packageRegistration = package.PackageRegistration;
             _packageRepository.DeleteOnCommit(package);
 
-            UpdateIsLatest(packageRegistration);
+            UpdateIsLatest(packageRegistration, commitChanges);
 
             if (packageRegistration.Packages.Count == 0)
             {
@@ -237,7 +237,7 @@ namespace NuGetGallery
             package.Published = DateTime.UtcNow;
             package.Listed = true;
 
-            UpdateIsLatest(package.PackageRegistration);
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -306,7 +306,7 @@ namespace NuGetGallery
             package.Listed = true;
             package.LastUpdated = DateTime.UtcNow;
 
-            UpdateIsLatest(package.PackageRegistration);
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -328,7 +328,7 @@ namespace NuGetGallery
             package.Listed = false;
             package.LastUpdated = DateTime.UtcNow;
 
-            UpdateIsLatest(package.PackageRegistration);
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -587,7 +587,7 @@ namespace NuGetGallery
             }
         }
 
-        private void UpdateIsLatest(PackageRegistration packageRegistration)
+        private void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges)
         {
             if (!packageRegistration.Packages.Any())
             {
@@ -629,7 +629,7 @@ namespace NuGetGallery
                 }
             }
 
-            _curatedFeedService.UpdateIsLatest(packageRegistration);
+            _curatedFeedService.UpdateIsLatest(packageRegistration, commitChanges);
         }
 
         private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)

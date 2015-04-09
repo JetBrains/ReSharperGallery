@@ -36,11 +36,6 @@ namespace NuGetGallery
           }
           EntitiesContext.SaveChanges();
 
-          foreach (var packageRegistration in EntitiesContext.PackageRegistrations.ToList())
-          {
-              CuratedFeedService.UpdateIsLatest(packageRegistration);
-          }
-
           return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeedName });
         }
 
@@ -184,9 +179,8 @@ namespace NuGetGallery
                     notes: request.Notes,
                     commitChanges: false);
             }
+            CuratedFeedService.UpdateIsLatest(packageRegistration, false);
             EntitiesContext.SaveChanges();
-
-            CuratedFeedService.UpdateIsLatest(packageRegistration);
 
             return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeed.Name });
         }

@@ -30,6 +30,6 @@ namespace NuGetGallery
         IQueryable<CuratedPackage> GetCuratedPackageRegistrations(string curatedFeedName);
         IQueryable<PackageRegistration> GetPackageRegistrations(string curatedFeedName);
         int? GetKey(string curatedFeedName);
-        void UpdateIsLatest(PackageRegistration packageRegistration);
+        void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges);
     }
 }

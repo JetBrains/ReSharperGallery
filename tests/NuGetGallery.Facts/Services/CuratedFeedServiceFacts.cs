@@ -273,7 +273,7 @@ namespace NuGetGallery.Services
             {
                 var service = new TestableCuratedFeedService();
 
-                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1);
+                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
                 service.StubCuratedFeedRepository.Verify(r => r.CommitChanges(), Times.Once());
             }
@@ -286,13 +286,13 @@ namespace NuGetGallery.Services
                 service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage);
                 service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage_IncompatibleVersion);
 
-                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1);
+                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
                 Assert.Equal(service.StubPackage_IncompatibleVersion, service.StubCuratedPackageRegistration_ForFeed1.LatestPackage);
 
                 service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Remove(service.StubPackage_IncompatibleVersion);
 
-                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1);
+                service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
                 Assert.Equal(service.StubPackage, service.StubCuratedPackageRegistration_ForFeed1.LatestPackage);
             }

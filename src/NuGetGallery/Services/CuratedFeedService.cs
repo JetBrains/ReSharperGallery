@@ -182,7 +182,7 @@ namespace NuGetGallery
             return results.Length > 0 ? (int?)results[0] : null;
         }
 
-        public void UpdateIsLatest(PackageRegistration packageRegistration)
+        public void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges)
         {
             var registrations = CuratedPackageRepository.GetAll()
                 .Where(cp => cp.PackageRegistration.Key == packageRegistration.Key)
@@ -213,7 +213,9 @@ namespace NuGetGallery
                     }
                 }
             }
-            CuratedFeedRepository.CommitChanges();
+
+            if (commitChanges)
+                CuratedFeedRepository.CommitChanges();
         }
 
         private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)

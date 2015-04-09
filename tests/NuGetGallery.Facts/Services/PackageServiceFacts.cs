@@ -1361,7 +1361,7 @@ namespace NuGetGallery
 
                 service.MarkPackageListed(package, commitChanges: true);
 
-                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration, true), Times.Once());
             }
         }
 
@@ -1461,7 +1461,7 @@ namespace NuGetGallery
 
                 service.MarkPackageUnlisted(package);
 
-                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration, true), Times.Once());
             }
         }
 
@@ -1757,7 +1757,7 @@ namespace NuGetGallery
 
                 service.PublishPackage(package);
 
-                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration), Times.Once());
+                curatedFeedService.Verify(cfs => cfs.UpdateIsLatest(packageRegistration, true), Times.Once());
             }
         }
 
