@@ -74,7 +74,7 @@ namespace NuGetGallery
                 .ToV2FeedPackageQuery(Configuration.GetSiteRoot(UseHttps()), Configuration.Features.FriendlyLicenses);
         }
 
-        private IQueryable<PackageWithLatestFlags> ToPackageWithFlags(IQueryable<CuratedPackage> curatedPackageRegistrations)
+        private static IQueryable<PackageWithLatestFlags> ToPackageWithFlags(IQueryable<CuratedPackage> curatedPackageRegistrations)
         {
             return curatedPackageRegistrations.SelectMany(cpr => cpr.CuratedPackages.Select(p => new PackageWithLatestFlags
             {
