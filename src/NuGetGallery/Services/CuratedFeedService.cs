@@ -158,7 +158,7 @@ namespace NuGetGallery
         {
             var packages = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)
-                .SelectMany(cf => cf.Packages.SelectMany(cp => cp.PackageRegistration.Packages));
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).SelectMany(cp => cp.CuratedPackages));
 
             return packages;
         }
@@ -167,7 +167,7 @@ namespace NuGetGallery
         {
             var packageRegistrations = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)
-                .SelectMany(cf => cf.Packages.Select(cp => cp.PackageRegistration));
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).Select(cp => cp.PackageRegistration));
 
             return packageRegistrations;
         }
