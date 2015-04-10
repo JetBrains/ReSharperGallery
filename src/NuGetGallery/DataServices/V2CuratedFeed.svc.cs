@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Services;
 using System.Linq;
@@ -46,12 +47,14 @@ namespace NuGetGallery
                 throw new DataServiceException(404, "Not Found");
             }
 
-            var packages = _curatedFeedService.GetPackages(curatedFeedName);
+            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackageRegistrations(curatedFeedName);
+            var packages = ToPackageWithFlags(curatedPackageRegistrations);
 
             return new V2FeedContext
                 {
                     Packages = packages
-                        .ToV2FeedPackageQuery(Configuration.GetSiteRoot(UseHttps()), Configuration.Features.FriendlyLicenses)
+                        .ToV2FeedPackageQuery(Configuration.GetSiteRoot(UseHttps()),
+                            Configuration.Features.FriendlyLicenses)
                         .InterceptWith(new NormalizeVersionInterceptor())
                 };
         }
@@ -65,9 +68,20 @@ namespace NuGetGallery
         public IQueryable<V2FeedPackage> FindPackagesById(string id)
         {
             var curatedFeedName = GetCuratedFeedName();
-            return _curatedFeedService.GetPackages(curatedFeedName)
-                .Where(p => p.PackageRegistration.Id.Equals(id, StringComparison.OrdinalIgnoreCase))
+            var curatedPackageRegistrations = _curatedFeedService.GetCuratedPackageRegistrations(curatedFeedName)
+                .Where(p => p.PackageRegistration.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            return ToPackageWithFlags(curatedPackageRegistrations)
                 .ToV2FeedPackageQuery(Configuration.GetSiteRoot(UseHttps()), Configuration.Features.FriendlyLicenses);
+        }
+
+        private static IQueryable<PackageWithLatestFlags> ToPackageWithFlags(IQueryable<CuratedPackage> curatedPackageRegistrations)
+        {
+            return curatedPackageRegistrations.SelectMany(cpr => cpr.CuratedPackages.Select(p => new PackageWithLatestFlags
+            {
+                Package = p,
+                IsLatestVersion = cpr.LatestStablePackageKey.HasValue && (p.Key == cpr.LatestStablePackageKey),
+                IsAbsoluteLatestVersion = cpr.LatestPackageKey.HasValue && (p.Key == cpr.LatestPackageKey)
+            }));
         }
 
         private string GetCuratedFeedName()

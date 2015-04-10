@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace NuGetGallery
 {
@@ -9,7 +8,7 @@ namespace NuGetGallery
     {
         CuratedPackage CreatedCuratedPackage(
             CuratedFeed curatedFeed,
-            PackageRegistration packageRegistration,
+            Package package,
             bool included = false,
             bool automaticallyCurated = false,
             string notes = null,
@@ -28,7 +27,9 @@ namespace NuGetGallery
         CuratedFeed GetFeedByKey(int key, bool includePackages);
         IEnumerable<CuratedFeed> GetFeedsForManager(int managerKey);
         IQueryable<Package> GetPackages(string curatedFeedName);
+        IQueryable<CuratedPackage> GetCuratedPackageRegistrations(string curatedFeedName);
         IQueryable<PackageRegistration> GetPackageRegistrations(string curatedFeedName);
         int? GetKey(string curatedFeedName);
+        void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges);
     }
 }

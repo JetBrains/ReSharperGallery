@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Web;
+using NuGet;
 
 namespace NuGetGallery
 {
@@ -25,7 +25,7 @@ namespace NuGetGallery
 
         public CuratedPackage CreatedCuratedPackage(
             CuratedFeed curatedFeed,
-            PackageRegistration packageRegistration,
+            Package package,
             bool included = false,
             bool automaticallyCurated = false,
             string notes = null,
@@ -36,33 +36,37 @@ namespace NuGetGallery
                 throw new ArgumentNullException("curatedFeed");
             }
 
-            if (packageRegistration == null)
+            if (package == null)
             {
-                throw new ArgumentNullException("packageRegistration");
+                throw new ArgumentNullException("package");
             }
 
-            var curatedPackage = curatedFeed.Packages
-                .SingleOrDefault(cp => cp.PackageRegistrationKey == packageRegistration.Key);
+            var curatedPackageRegistration = curatedFeed.Packages
+                .SingleOrDefault(cp => cp.PackageRegistrationKey == package.PackageRegistration.Key);
 
-            if (curatedPackage == null)
+            if (curatedPackageRegistration == null)
             {
-                curatedPackage = new CuratedPackage
+                curatedPackageRegistration = new CuratedPackage
                 {
-                    PackageRegistration = packageRegistration,
+                    PackageRegistration = package.PackageRegistration,
+                    PackageRegistrationKey = package.PackageRegistrationKey,
                     Included = included,
                     AutomaticallyCurated = automaticallyCurated,
                     Notes = notes,
                 };
 
-                curatedFeed.Packages.Add(curatedPackage);
+                curatedFeed.Packages.Add(curatedPackageRegistration);
             }
+
+            if (!curatedPackageRegistration.CuratedPackages.Any(p => p.Key == package.Key))
+                curatedPackageRegistration.CuratedPackages.Add(package);
 
             if (commitChanges)
             {
                 CuratedFeedRepository.CommitChanges();
             }
 
-            return curatedPackage;
+            return curatedPackageRegistration;
         }
 
         public void DeleteCuratedPackage(
@@ -142,11 +146,20 @@ namespace NuGetGallery
                 .Where(cf => cf.Managers.Any(u => u.Key == managerKey));
         }
 
+        // I do wish CuratedPackage were called CuratedPackageRegistration
+        public IQueryable<CuratedPackage> GetCuratedPackageRegistrations(string curatedFeedName)
+        {
+            var packages = CuratedFeedRepository.GetAll()
+                .Where(cf => cf.Name == curatedFeedName)
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included));
+            return packages;
+        } 
+
         public IQueryable<Package> GetPackages(string curatedFeedName)
         {
             var packages = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)
-                .SelectMany(cf => cf.Packages.SelectMany(cp => cp.PackageRegistration.Packages));
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).SelectMany(cp => cp.CuratedPackages));
 
             return packages;
         }
@@ -155,7 +168,7 @@ namespace NuGetGallery
         {
             var packageRegistrations = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)
-                .SelectMany(cf => cf.Packages.Select(cp => cp.PackageRegistration));
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).Select(cp => cp.PackageRegistration));
 
             return packageRegistrations;
         }
@@ -167,6 +180,58 @@ namespace NuGetGallery
                 .Select(cf => cf.Key).Take(1).ToArray();
 
             return results.Length > 0 ? (int?)results[0] : null;
+        }
+
+        public void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges)
+        {
+            var registrations = CuratedPackageRepository.GetAll()
+                .Where(cp => cp.PackageRegistration.Key == packageRegistration.Key)
+                .Include(cp => cp.CuratedPackages).ToList();
+
+            foreach (var registration in registrations)
+            {
+                registration.LatestPackage = null;
+                registration.LatestStablePackage = null;
+                registration.LastUpdated = DateTime.UtcNow;
+
+                // If the last listed package was just unlisted, then we won't find another one
+                var latestPackage = FindPackage(registration.CuratedPackages, p => p.Listed);
+                if (latestPackage != null)
+                {
+                    registration.LatestPackage = latestPackage;
+                    registration.LatestStablePackage = latestPackage;
+                    if (latestPackage.IsPrerelease)
+                    {
+                        // If the newest uploaded package is a prerelease package, we need to find an older package that is 
+                        // a release version and set it to IsLatest.
+                        var latestReleasePackage =
+                            FindPackage(registration.CuratedPackages.Where(p => !p.IsPrerelease && p.Listed));
+                        if (latestReleasePackage != null)
+                        {
+                            registration.LatestStablePackage = latestReleasePackage;
+                        }
+                    }
+                }
+            }
+
+            if (commitChanges)
+                CuratedFeedRepository.CommitChanges();
+        }
+
+        private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)
+        {
+            if (predicate != null)
+            {
+                packages = packages.Where(predicate);
+            }
+            SemanticVersion version = packages.Max(p => new SemanticVersion(p.Version));
+
+            if (version == null)
+            {
+                return null;
+            }
+            var v = version.ToString();
+            return packages.First(pv => pv.Version.Equals(v, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

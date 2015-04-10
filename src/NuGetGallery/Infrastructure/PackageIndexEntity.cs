@@ -11,15 +11,20 @@ namespace NuGetGallery
     {
         internal static readonly char[] IdSeparators = new[] { '.', '-' };
 
-        public Package Package { get; set; }
+        private readonly int curatedFeedKey;
+        private readonly bool isLatest;
+        private readonly bool isLatestStable;
 
-        public IEnumerable<int> CuratedFeedKeys { get; set; }
+        public Package Package { get; set; }
 
         public PackageIndexEntity() { }
 
-        public PackageIndexEntity(Package package)
+        public PackageIndexEntity(Package package, int curatedFeedKey, bool isLatest, bool isLatestStable)
         {
             this.Package = package;
+            this.curatedFeedKey = curatedFeedKey;
+            this.isLatest = isLatest;
+            this.isLatestStable = isLatestStable;
         }
 
         public Document ToDocument()
@@ -34,13 +39,7 @@ namespace NuGetGallery
 
             document.Add(new Field("Key", Package.Key.ToString(CultureInfo.InvariantCulture), Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-            if (CuratedFeedKeys != null)
-            {
-                foreach (var feedKey in CuratedFeedKeys)
-                {
-                    document.Add(new Field("CuratedFeedKey", feedKey.ToString(CultureInfo.InvariantCulture), Field.Store.NO, Field.Index.NOT_ANALYZED));
-                }
-            }
+            document.Add(new Field("CuratedFeedKey", curatedFeedKey.ToString(CultureInfo.InvariantCulture), Field.Store.NO, Field.Index.NOT_ANALYZED));
 
             var field = new Field("Id-Exact", Package.PackageRegistration.Id.ToLowerInvariant(), Field.Store.NO, Field.Index.NOT_ANALYZED);
 
@@ -156,8 +155,8 @@ namespace NuGetGallery
             }
 
             // Fields meant for filtering, also storing data to avoid hitting SQL while doing searches
-            document.Add(new Field("IsLatest", Package.IsLatest.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-            document.Add(new Field("IsLatestStable", Package.IsLatestStable.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+            document.Add(new Field("IsLatest", isLatest.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+            document.Add(new Field("IsLatestStable", isLatestStable.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 
             // Fields meant for filtering, sorting
             document.Add(new Field("PublishedDate", Package.Published.Ticks.ToString(CultureInfo.InvariantCulture), Field.Store.NO, Field.Index.NOT_ANALYZED));

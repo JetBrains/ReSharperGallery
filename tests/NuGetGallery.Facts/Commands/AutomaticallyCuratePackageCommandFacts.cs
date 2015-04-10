@@ -13,7 +13,7 @@ namespace NuGetGallery.Commands
         public class TestableAutomaticallyCuratePackageCommand : AutomaticallyCuratePackageCommand
         {
             public TestableAutomaticallyCuratePackageCommand()
-                : base(null)
+                : base(null, new Mock<ICuratedFeedService>().Object)
             {
                 StubCurators = new List<Mock<IAutomaticPackageCurator>>();
             }

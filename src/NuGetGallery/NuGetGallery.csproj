@@ -946,6 +946,14 @@
     <Compile Include="Migrations\201311261928187_NullifyOldColumns.Designer.cs">
       <DependentUpon>201311261928187_NullifyOldColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201504031310566_LatestPerCuratedFeed.cs" />
+    <Compile Include="Migrations\201504031310566_LatestPerCuratedFeed.Designer.cs">
+      <DependentUpon>201504031310566_LatestPerCuratedFeed.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201504031642428_PackagesPerCuratedFeed.cs" />
+    <Compile Include="Migrations\201504031642428_PackagesPerCuratedFeed.Designer.cs">
+      <DependentUpon>201504031642428_PackagesPerCuratedFeed.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\MigrationsConfiguration.cs" />
     <Compile Include="Migrations\SqlResourceMigration.cs" />
     <Compile Include="PackageCurators\IAutomaticPackageCurator.cs" />
@@ -1401,6 +1409,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201311261928187_NullifyOldColumns.resx">
       <DependentUpon>201311261928187_NullifyOldColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201504031310566_LatestPerCuratedFeed.resx">
+      <DependentUpon>201504031310566_LatestPerCuratedFeed.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201504031642428_PackagesPerCuratedFeed.resx">
+      <DependentUpon>201504031642428_PackagesPerCuratedFeed.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

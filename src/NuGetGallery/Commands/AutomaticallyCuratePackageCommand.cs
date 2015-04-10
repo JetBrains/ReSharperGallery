@@ -13,9 +13,12 @@ namespace NuGetGallery
 
     public class AutomaticallyCuratePackageCommand : AppCommand, IAutomaticallyCuratePackageCommand
     {
-        public AutomaticallyCuratePackageCommand(IEntitiesContext entities)
+        private readonly ICuratedFeedService curatedFeedService;
+
+        public AutomaticallyCuratePackageCommand(IEntitiesContext entities, ICuratedFeedService curatedFeedService)
             : base(entities)
         {
+            this.curatedFeedService = curatedFeedService;
         }
 
         public void Execute(Package galleryPackage, INupkg nugetPackage, bool commitChanges)
@@ -24,6 +27,8 @@ namespace NuGetGallery
             {
                 curator.Curate(galleryPackage, nugetPackage, commitChanges: commitChanges);
             }
+
+            curatedFeedService.UpdateIsLatest(galleryPackage.PackageRegistration, commitChanges);
         }
     }
 }

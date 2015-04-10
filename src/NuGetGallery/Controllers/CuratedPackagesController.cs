@@ -28,7 +28,7 @@ namespace NuGetGallery
         public virtual ActionResult ReIndex(string curatedFeedName)
         {
           foreach (var package in EntitiesContext.PackageRegistrations
-            .SelectMany(registration => registration.Packages.Where(p => p.IsLatest || p.IsLatestStable))
+            .SelectMany(registration => registration.Packages)
             .Include(package => package.PackageRegistration)
             .ToList())
           {
@@ -150,7 +150,9 @@ namespace NuGetGallery
 
             var packageRegistration = EntitiesContext.PackageRegistrations
                 .Where(pr => pr.Id == request.PackageId)
-                .Include(pr => pr.Owners).FirstOrDefault();
+                .Include(pr => pr.Packages)
+                .Include(pr => pr.Owners)
+                .FirstOrDefault();
 
             if (packageRegistration == null)
             {
@@ -166,12 +168,19 @@ namespace NuGetGallery
                 return View("CreateCuratedPackageForm");
             }
 
-            CuratedFeedService.CreatedCuratedPackage(
-                curatedFeed,
-                packageRegistration,
-                included: true,
-                automaticallyCurated: false,
-                notes: request.Notes);
+            var packages = packageRegistration.Packages.ToList();
+            foreach (var package in packages)
+            {
+                CuratedFeedService.CreatedCuratedPackage(
+                    curatedFeed,
+                    package,
+                    included: true,
+                    automaticallyCurated: false,
+                    notes: request.Notes,
+                    commitChanges: false);
+            }
+            CuratedFeedService.UpdateIsLatest(packageRegistration, false);
+            EntitiesContext.SaveChanges();
 
             return RedirectToRoute(RouteName.CuratedFeed, new { name = curatedFeed.Name });
         }

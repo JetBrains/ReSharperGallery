@@ -68,6 +68,7 @@ namespace NuGetGallery
             }
 
             var packages = GetPackages(lastWriteTime);
+            packages.AddRange(GetCuratedPackages(lastWriteTime));
             if (packages.Count > 0)
             {
                 EnsureIndexWriter(creatingIndex: lastWriteTime == null);
@@ -80,39 +81,25 @@ namespace NuGetGallery
         public void UpdatePackage(Package package)
         {
             var packageRegistrationKey = package.PackageRegistrationKey;
-            var updateTerm = new Term("PackageRegistrationKey", packageRegistrationKey.ToString(CultureInfo.InvariantCulture));
 
-            if (!package.IsLatest || !package.IsLatestStable)
-            {
-                // Someone passed us in a version which was e.g. just unlisted? Or just not the latest version which is what we want to index. Doesn't really matter. We'll find one to index.
-                package = _packageRepository.GetAll()
-                    .Where(p => (p.IsLatest || p.IsLatestStable) && p.PackageRegistrationKey == packageRegistrationKey)
-                    .Include(p => p.PackageRegistration)
-                    .Include(p => p.PackageRegistration.Owners)
-                    .Include(p => p.SupportedFrameworks)
-                    .FirstOrDefault();
-            }
+            // We can't just update that one document. Someone might have unlisted, and therefore changed the IsLatest(Stable)
+            // flags. Update the whole registration, and all curated feeds
+            var packagesForIndexing = GetPackages(lastIndexTime: null, package: package);
+            packagesForIndexing.AddRange(GetCuratedPackages(lastIndexTime: null, package: package));
 
             // Just update the provided package
+            var updateTerm = new Term("PackageRegistrationKey", packageRegistrationKey.ToString(CultureInfo.InvariantCulture));
             using (Trace.Activity(String.Format(CultureInfo.CurrentCulture, "Updating Document: {0}", updateTerm.ToString())))
             {
                 EnsureIndexWriter(creatingIndex: false);
-                if (package != null)
-                {
-                    var indexEntity = new PackageIndexEntity(package);
-                    Trace.Information(String.Format(CultureInfo.CurrentCulture, "Updating Lucene Index for: {0} {1} [PackageKey:{2}]", package.PackageRegistration.Id, package.Version, package.Key));
-                    _indexWriter.UpdateDocument(updateTerm, indexEntity.ToDocument());
-                }
-                else
-                {
-                    Trace.Information(String.Format(CultureInfo.CurrentCulture, "Deleting Document: {0}", updateTerm.ToString()));
-                    _indexWriter.DeleteDocuments(updateTerm);
-                }
+
+                // This will delete existing documents
+                AddPackages(packagesForIndexing, false);
                 _indexWriter.Commit();
             }
         }
 
-        private List<PackageIndexEntity> GetPackages(DateTime? lastIndexTime)
+        private List<PackageIndexEntity> GetPackages(DateTime? lastIndexTime, Package package = null)
         {
             IQueryable<Package> set = _packageRepository.GetAll();
 
@@ -130,35 +117,70 @@ namespace NuGetGallery
                 set = set.Where(p => p.IsLatest || p.IsLatestStable);  // which implies that p.IsListed by the way!
             }
 
+            if (package != null)
+            {
+                set = set.Where(p => p.PackageRegistrationKey == package.PackageRegistrationKey);
+            }
+
             var list = set
                 .Include(p => p.PackageRegistration)
                 .Include(p => p.PackageRegistration.Owners)
                 .Include(p => p.SupportedFrameworks)
                 .ToList();
 
-            var curatedFeedsPerPackageRegistration = _curatedPackageRepository.GetAll()
-                .Select(cp => new { cp.PackageRegistrationKey, cp.CuratedFeedKey })
-                .GroupBy(x => x.PackageRegistrationKey)
-                .ToDictionary(group => group.Key, element => element.Select(x => x.CuratedFeedKey));
-
-            Func<int, IEnumerable<int>> GetFeeds = packageRegistrationKey =>
-            {
-                IEnumerable<int> ret = null;
-                curatedFeedsPerPackageRegistration.TryGetValue(packageRegistrationKey, out ret);
-                return ret;
-            };
-
             var packagesForIndexing = list.Select(
-                p => new PackageIndexEntity
-                {
-                    Package = p,
-                    CuratedFeedKeys = GetFeeds(p.PackageRegistrationKey)
-                });
+                p => new PackageIndexEntity(p, CuratedFeed.MasterFeedKey, p.IsLatest, p.IsLatestStable));
 
             return packagesForIndexing.ToList();
         }
 
-        public void AddPackages(IList<PackageIndexEntity> packages, bool creatingIndex)
+        private IList<PackageIndexEntity> GetCuratedPackages(DateTime? lastIndexTime, Package package = null)
+        {
+            // MATT: Blimey. That's a lot of Includes
+            var set = _curatedPackageRepository.GetAll()
+                .Include(cp => cp.LatestStablePackage)
+                .Include(cp => cp.LatestStablePackage.PackageRegistration)
+                .Include(cp => cp.LatestStablePackage.SupportedFrameworks)
+                .Include(cp => cp.LatestPackage)
+                .Include(cp => cp.LatestPackage.PackageRegistration)
+                .Include(cp => cp.LatestPackage.SupportedFrameworks)
+                .Include(cp => cp.PackageRegistration)
+                .Include(cp => cp.PackageRegistration.Owners);
+
+            if (lastIndexTime.HasValue)
+            {
+                set = set.Where(cp => cp.LastUpdated > lastIndexTime);
+            }
+
+            if (package != null)
+            {
+                set = set.Where(cp => cp.PackageRegistrationKey == package.PackageRegistrationKey);
+            }
+
+            var list = set.ToList();
+
+            var packagesForIndexing = new List<PackageIndexEntity>();
+            foreach (var curatedPackage in list)
+            {
+                if (curatedPackage.LatestPackage != null)
+                {
+                    packagesForIndexing.Add(new PackageIndexEntity(curatedPackage.LatestPackage,
+                        curatedPackage.CuratedFeedKey, true,
+                        curatedPackage.LatestPackageKey == curatedPackage.LatestStablePackageKey));
+                }
+
+                if (curatedPackage.LatestStablePackage != null &&
+                    curatedPackage.LatestPackageKey != curatedPackage.LatestStablePackageKey)
+                {
+                    packagesForIndexing.Add(new PackageIndexEntity(curatedPackage.LatestStablePackage,
+                        curatedPackage.CuratedFeedKey, false, true));
+                }
+            }
+
+            return packagesForIndexing;
+        }
+
+        private void AddPackages(IList<PackageIndexEntity> packages, bool creatingIndex)
         {
             if (!creatingIndex)
             {

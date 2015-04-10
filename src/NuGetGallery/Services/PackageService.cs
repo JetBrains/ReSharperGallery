@@ -12,6 +12,7 @@ namespace NuGetGallery
     public class PackageService : IPackageService
     {
         private readonly IIndexingService _indexingService;
+        private readonly ICuratedFeedService _curatedFeedService;
         private readonly IEntityRepository<PackageOwnerRequest> _packageOwnerRequestRepository;
         private readonly IEntityRepository<PackageRegistration> _packageRegistrationRepository;
         private readonly IEntityRepository<Package> _packageRepository;
@@ -22,13 +23,15 @@ namespace NuGetGallery
             IEntityRepository<Package> packageRepository,
             IEntityRepository<PackageStatistics> packageStatsRepository,
             IEntityRepository<PackageOwnerRequest> packageOwnerRequestRepository,
-            IIndexingService indexingService)
+            IIndexingService indexingService,
+            ICuratedFeedService curatedFeedService)
         {
             _packageRegistrationRepository = packageRegistrationRepository;
             _packageRepository = packageRepository;
             _packageStatsRepository = packageStatsRepository;
             _packageOwnerRequestRepository = packageOwnerRequestRepository;
             _indexingService = indexingService;
+            _curatedFeedService = curatedFeedService;
         }
 
         public Package CreatePackage(INupkg nugetPackage, User user, bool commitChanges = true)
@@ -39,7 +42,7 @@ namespace NuGetGallery
 
             var package = CreatePackageFromNuGetPackage(packageRegistration, nugetPackage, user);
             packageRegistration.Packages.Add(package);
-            UpdateIsLatest(packageRegistration);
+            UpdateIsLatest(packageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -62,7 +65,7 @@ namespace NuGetGallery
             var packageRegistration = package.PackageRegistration;
             _packageRepository.DeleteOnCommit(package);
 
-            UpdateIsLatest(packageRegistration);
+            UpdateIsLatest(packageRegistration, commitChanges);
 
             if (packageRegistration.Packages.Count == 0)
             {
@@ -234,7 +237,7 @@ namespace NuGetGallery
             package.Published = DateTime.UtcNow;
             package.Listed = true;
 
-            UpdateIsLatest(package.PackageRegistration);
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -303,7 +306,7 @@ namespace NuGetGallery
             package.Listed = true;
             package.LastUpdated = DateTime.UtcNow;
 
-            UpdateIsLatest(package.PackageRegistration);
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -325,10 +328,7 @@ namespace NuGetGallery
             package.Listed = false;
             package.LastUpdated = DateTime.UtcNow;
 
-            if (package.IsLatest || package.IsLatestStable)
-            {
-                UpdateIsLatest(package.PackageRegistration);
-            }
+            UpdateIsLatest(package.PackageRegistration, commitChanges);
 
             if (commitChanges)
             {
@@ -587,7 +587,7 @@ namespace NuGetGallery
             }
         }
 
-        private static void UpdateIsLatest(PackageRegistration packageRegistration)
+        private void UpdateIsLatest(PackageRegistration packageRegistration, bool commitChanges)
         {
             if (!packageRegistration.Packages.Any())
             {
@@ -628,6 +628,8 @@ namespace NuGetGallery
                     latestPackage.IsLatestStable = true;
                 }
             }
+
+            _curatedFeedService.UpdateIsLatest(packageRegistration, commitChanges);
         }
 
         private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)

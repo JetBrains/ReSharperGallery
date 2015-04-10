@@ -64,7 +64,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -84,7 +84,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -109,7 +109,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         curator.StubCuratedFeed,
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -133,7 +133,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         curator.StubCuratedFeed,
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -163,7 +163,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         curator.StubCuratedFeed,
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -183,7 +183,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         curator.StubCuratedFeed,
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         true,
                         It.IsAny<string>(),
@@ -208,7 +208,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -229,7 +229,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -252,7 +252,7 @@ namespace NuGetGallery.PackageCurators
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<PackageRegistration>(),
+                        It.IsAny<Package>(),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),

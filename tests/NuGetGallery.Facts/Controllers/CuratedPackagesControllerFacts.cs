@@ -20,12 +20,40 @@ namespace NuGetGallery
                 StubCuratedFeed = new CuratedFeed
                     { Key = 0, Name = "aFeedName", Managers = new HashSet<User>(new[] { Fakes.User }) };
                 StubPackageRegistration = new PackageRegistration { Key = 0, Id = "anId" };
+                StubPackage = new Package
+                {
+                    Key = 34,
+                    PackageRegistration = StubPackageRegistration,
+                    PackageRegistrationKey = StubPackageRegistration.Key,
+                    Version = "1.0.0"
+                };
+                StubLatestPackage = new Package
+                {
+                    Key = 42,
+                    PackageRegistration = StubPackageRegistration,
+                    PackageRegistrationKey = StubPackageRegistration.Key,
+                    Version = "2.0.1-alpha",
+                    IsLatest = true,
+                    IsPrerelease = true
+                };
+                StubLatestStablePackage = new Package
+                {
+                    Key = 41,
+                    PackageRegistration = StubPackageRegistration,
+                    PackageRegistrationKey = StubPackageRegistration.Key,
+                    Version = "2.0.0",
+                    IsLatestStable = true
+                };
 
                 OwinContext = Fakes.CreateOwinContext();
 
                 EntitiesContext = new FakeEntitiesContext();
                 EntitiesContext.CuratedFeeds.Add(StubCuratedFeed);
                 EntitiesContext.PackageRegistrations.Add(StubPackageRegistration);
+
+                StubPackageRegistration.Packages.Add(StubPackage);
+                StubPackageRegistration.Packages.Add(StubLatestPackage);
+                StubPackageRegistration.Packages.Add(StubLatestStablePackage);
 
                 var curatedFeedRepository = new EntityRepository<CuratedFeed>(
                     EntitiesContext);
@@ -43,6 +71,9 @@ namespace NuGetGallery
 
             public CuratedFeed StubCuratedFeed { get; set; }
             public PackageRegistration StubPackageRegistration { get; private set; }
+            public Package StubPackage { get; private set; }
+            public Package StubLatestPackage { get; private set; }
+            public Package StubLatestStablePackage { get; private set; }
         }
 
         public class TheDeleteCuratedPackageAction
@@ -413,6 +444,49 @@ namespace NuGetGallery
                 Assert.Equal("aFeedName", result.ViewBag.CuratedFeedName);
                 Assert.Equal(Strings.PackageIsAlreadyCurated, controller.ModelState["PackageId"].Errors[0].ErrorMessage);
                 Assert.Equal("CreateCuratedPackageForm", result.ViewName);
+            }
+
+            [Fact]
+            public void WillAddAllPackageVersionsToTheCuratedFeed()
+            {
+                var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
+
+                controller.PostCuratedPackages(
+                    "aFeedName",
+                    new CreateCuratedPackageRequest
+                    {
+                        PackageId = "anId",
+                        Notes = "theNotes"
+                    });
+
+                var packageVersions =
+                    controller.StubCuratedFeed.Packages.First(cpr => cpr.PackageRegistration.Id == "anId")
+                        .CuratedPackages;
+                Assert.Equal(3, packageVersions.Count);
+                Assert.Contains(controller.StubPackage, packageVersions);
+                Assert.Contains(controller.StubLatestPackage, packageVersions);
+                Assert.Contains(controller.StubLatestStablePackage, packageVersions);
+            }
+
+            [Fact]
+            public void WillUpdateIsLatestFlags()
+            {
+                var controller = new TestableCuratedPackagesController();
+                controller.SetCurrentUser(Fakes.User);
+
+                controller.PostCuratedPackages(
+                    "aFeedName",
+                    new CreateCuratedPackageRequest
+                    {
+                        PackageId = "anId",
+                        Notes = "theNotes"
+                    });
+
+                var curatedPackageRegistration = controller.EntitiesContext.Set<CuratedPackage>()
+                    .First(cpr => cpr.PackageRegistration.Id == "anId");
+                Assert.Same(controller.StubLatestPackage, curatedPackageRegistration.LatestPackage);
+                Assert.Same(controller.StubLatestStablePackage, curatedPackageRegistration.LatestStablePackage);
             }
         }
     }
