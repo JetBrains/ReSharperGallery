@@ -109,7 +109,7 @@ var drawDownloadsByVersionBarChart = function () {
 
     var reportTableWidth = $('#report-Version').width();
 
-    var reportGraphWidth = 960 - reportTableWidth;
+    var reportGraphWidth = 1060 - reportTableWidth;
 
     reportGraphWidth = Math.min(reportGraphWidth, 590);
 

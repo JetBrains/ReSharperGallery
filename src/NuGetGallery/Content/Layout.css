@@ -272,8 +272,8 @@ html.static body,
 
 #content-wrapper {
     margin: 0 auto;
-    min-width: 960px;
-    width: 960px;
+    min-width: 1060px;
+    width: 1060px;
 }
 
 /* Columns (For Two-Column Layout) */
