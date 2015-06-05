@@ -76,11 +76,11 @@ namespace NuGetGallery
 
         private static IQueryable<PackageWithLatestFlags> ToPackageWithFlags(IQueryable<CuratedPackage> curatedPackageRegistrations)
         {
-            return curatedPackageRegistrations.SelectMany(cpr => cpr.CuratedPackages.Select(p => new PackageWithLatestFlags
+            return curatedPackageRegistrations.SelectMany(cpr => cpr.CuratedPackageVersions.Select(p => new PackageWithLatestFlags
             {
-                Package = p,
-                IsLatestVersion = cpr.LatestStablePackageKey.HasValue && (p.Key == cpr.LatestStablePackageKey),
-                IsAbsoluteLatestVersion = cpr.LatestPackageKey.HasValue && (p.Key == cpr.LatestPackageKey)
+                Package = p.Package,
+                IsLatestVersion = p.IsLatestStable,
+                IsAbsoluteLatestVersion = p.IsLatest
             }));
         }
 

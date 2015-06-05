@@ -462,7 +462,7 @@ namespace NuGetGallery
 
                 var packageVersions =
                     controller.StubCuratedFeed.Packages.First(cpr => cpr.PackageRegistration.Id == "anId")
-                        .CuratedPackages;
+                        .CuratedPackageVersions.Select(cpv => cpv.Package).ToList();
                 Assert.Equal(3, packageVersions.Count);
                 Assert.Contains(controller.StubPackage, packageVersions);
                 Assert.Contains(controller.StubLatestPackage, packageVersions);
@@ -485,8 +485,8 @@ namespace NuGetGallery
 
                 var curatedPackageRegistration = controller.EntitiesContext.Set<CuratedPackage>()
                     .First(cpr => cpr.PackageRegistration.Id == "anId");
-                Assert.Same(controller.StubLatestPackage, curatedPackageRegistration.LatestPackage);
-                Assert.Same(controller.StubLatestStablePackage, curatedPackageRegistration.LatestStablePackage);
+                Assert.Same(controller.StubLatestPackage, curatedPackageRegistration.CuratedPackageVersions.Single(cpv => cpv.IsLatest).Package);
+                Assert.Same(controller.StubLatestStablePackage, curatedPackageRegistration.CuratedPackageVersions.Single(cpv => cpv.IsLatestStable).Package);
             }
         }
     }

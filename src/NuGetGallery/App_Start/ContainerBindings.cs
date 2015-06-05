@@ -76,6 +76,10 @@ namespace NuGetGallery
                 .To<EntityRepository<CuratedPackage>>()
                 .InRequestScope();
 
+            Bind<IEntityRepository<CuratedPackageVersion>>()
+                .To<EntityRepository<CuratedPackageVersion>>()
+                .InRequestScope();
+
             Bind<IEntityRepository<PackageRegistration>>()
                 .To<EntityRepository<PackageRegistration>>()
                 .InRequestScope();

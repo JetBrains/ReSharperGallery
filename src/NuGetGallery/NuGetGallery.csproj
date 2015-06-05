@@ -954,6 +954,14 @@
     <Compile Include="Migrations\201504031642428_PackagesPerCuratedFeed.Designer.cs">
       <DependentUpon>201504031642428_PackagesPerCuratedFeed.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201506051127434_RemoveCuratedPackageVersionsTable.cs" />
+    <Compile Include="Migrations\201506051127434_RemoveCuratedPackageVersionsTable.Designer.cs">
+      <DependentUpon>201506051127434_RemoveCuratedPackageVersionsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201506051158568_AddExplicitCuratedPackageVersionEntity.cs" />
+    <Compile Include="Migrations\201506051158568_AddExplicitCuratedPackageVersionEntity.Designer.cs">
+      <DependentUpon>201506051158568_AddExplicitCuratedPackageVersionEntity.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\MigrationsConfiguration.cs" />
     <Compile Include="Migrations\SqlResourceMigration.cs" />
     <Compile Include="PackageCurators\IAutomaticPackageCurator.cs" />
@@ -1415,6 +1423,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201504031642428_PackagesPerCuratedFeed.resx">
       <DependentUpon>201504031642428_PackagesPerCuratedFeed.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201506051127434_RemoveCuratedPackageVersionsTable.resx">
+      <DependentUpon>201506051127434_RemoveCuratedPackageVersionsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201506051158568_AddExplicitCuratedPackageVersionEntity.resx">
+      <DependentUpon>201506051158568_AddExplicitCuratedPackageVersionEntity.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

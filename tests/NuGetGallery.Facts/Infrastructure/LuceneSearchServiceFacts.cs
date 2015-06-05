@@ -592,10 +592,10 @@ namespace NuGetGallery.Infrastructure
                 .Setup(m => m.GetAll())
                 .Returns(packages.AsQueryable());
 
-            var mockCuratedPackageSource = new Mock<IEntityRepository<CuratedPackage>>();
+            var mockCuratedPackageSource = new Mock<IEntityRepository<CuratedPackageVersion>>();
             mockCuratedPackageSource
                 .Setup(m => m.GetAll())
-                .Returns(Enumerable.Empty<CuratedPackage>().AsQueryable());
+                .Returns(Enumerable.Empty<CuratedPackageVersion>().AsQueryable());
 
             var luceneIndexingService = new LuceneIndexingService(
                 mockPackageSource.Object,

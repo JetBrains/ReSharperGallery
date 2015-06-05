@@ -24,7 +24,7 @@ namespace NuGetGallery
         private Lucene.Net.Store.Directory _directory;
         private IndexWriter _indexWriter;
         private IEntityRepository<Package> _packageRepository;
-        private IEntityRepository<CuratedPackage> _curatedPackageRepository;
+        private IEntityRepository<CuratedPackageVersion> _curatedPackageVersionRepository;
 
         private IDiagnosticsSource Trace { get; set; }
 
@@ -35,12 +35,12 @@ namespace NuGetGallery
 
         public LuceneIndexingService(
             IEntityRepository<Package> packageSource,
-            IEntityRepository<CuratedPackage> curatedPackageSource,
+            IEntityRepository<CuratedPackageVersion> curatedPackageVersionSource,
             Lucene.Net.Store.Directory directory,
 			IDiagnosticsService diagnostics)
         {
             _packageRepository = packageSource;
-            _curatedPackageRepository = curatedPackageSource;
+            _curatedPackageVersionRepository = curatedPackageVersionSource;
             _directory = directory;
             Trace = diagnostics.SafeGetSource("LuceneIndexingService");
         }
@@ -136,20 +136,17 @@ namespace NuGetGallery
 
         private IList<PackageIndexEntity> GetCuratedPackages(DateTime? lastIndexTime, Package package = null)
         {
-            // MATT: Blimey. That's a lot of Includes
-            var set = _curatedPackageRepository.GetAll()
-                .Include(cp => cp.LatestStablePackage)
-                .Include(cp => cp.LatestStablePackage.PackageRegistration)
-                .Include(cp => cp.LatestStablePackage.SupportedFrameworks)
-                .Include(cp => cp.LatestPackage)
-                .Include(cp => cp.LatestPackage.PackageRegistration)
-                .Include(cp => cp.LatestPackage.SupportedFrameworks)
-                .Include(cp => cp.PackageRegistration)
-                .Include(cp => cp.PackageRegistration.Owners);
+            var set = _curatedPackageVersionRepository.GetAll();
 
             if (lastIndexTime.HasValue)
             {
-                set = set.Where(cp => cp.LastUpdated > lastIndexTime);
+                // Where the registration has changed, or any of the packages have changed
+                set = set.Where(cp => (cp.LastUpdated > lastIndexTime) &&
+                                      cp.PackageRegistration.Packages.Any(p => p.LastUpdated > lastIndexTime));
+            }
+            else
+            {
+                set = set.Where(cp => cp.IsLatest || cp.IsLatestStable);
             }
 
             if (package != null)
@@ -157,27 +154,14 @@ namespace NuGetGallery
                 set = set.Where(cp => cp.PackageRegistrationKey == package.PackageRegistrationKey);
             }
 
-            var list = set.ToList();
+            var list = set
+                .Include(cp => cp.PackageRegistration)
+                .Include(cp => cp.PackageRegistration.Owners)
+                .Include(cp => cp.Package.SupportedFrameworks)
+                .ToList();
 
-            var packagesForIndexing = new List<PackageIndexEntity>();
-            foreach (var curatedPackage in list)
-            {
-                if (curatedPackage.LatestPackage != null)
-                {
-                    packagesForIndexing.Add(new PackageIndexEntity(curatedPackage.LatestPackage,
-                        curatedPackage.CuratedFeedKey, true,
-                        curatedPackage.LatestPackageKey == curatedPackage.LatestStablePackageKey));
-                }
-
-                if (curatedPackage.LatestStablePackage != null &&
-                    curatedPackage.LatestPackageKey != curatedPackage.LatestStablePackageKey)
-                {
-                    packagesForIndexing.Add(new PackageIndexEntity(curatedPackage.LatestStablePackage,
-                        curatedPackage.CuratedFeedKey, false, true));
-                }
-            }
-
-            return packagesForIndexing;
+            var packagesForIndexing = list.Select(p => new PackageIndexEntity(p.Package, p.CuratedFeedKey, p.IsLatest, p.IsLatestStable));
+            return packagesForIndexing.ToList();
         }
 
         private void AddPackages(IList<PackageIndexEntity> packages, bool creatingIndex)
