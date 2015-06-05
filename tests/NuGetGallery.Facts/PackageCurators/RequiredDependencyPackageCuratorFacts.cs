@@ -50,6 +50,9 @@ namespace NuGetGallery.PackageCurators
 
         public class TheCurateMethod
         {
+            private const string StubGalleryPackageId = "GalleryPackage";
+            private const string ShouldBeIncludedDependentPackageId = "ShouldBeIncludedDependency";
+
             [Fact]
             public void WillNotIncludeThePackageWhenTheFeedDoesNotExist()
             {
@@ -217,24 +220,45 @@ namespace NuGetGallery.PackageCurators
             }
 
             [Fact]
-            public void WillNotIncludeThePackageWhenItDependsOnAPackageThatIsNotIncluded()
+            public void WillAutomaticallyIncludeDependencies()
             {
                 var curator = new TestableRequiredDependencyPackageCurator();
                 var package = CreateStubGalleryPackage();
                 AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.0");
-                AddDependency(package, "NotIncluded", "3.0");
+                AddDependency(package, ShouldBeIncludedDependentPackageId, "3.0");
 
                 curator.Curate(package, null, commitChanges: true);
 
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.IsAny<Package>(),
+                        It.Is<Package>(p => p.PackageRegistration.Id == ShouldBeIncludedDependentPackageId),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
                         It.IsAny<bool>()),
-                    Times.Never());
+                    Times.Once());
+            }
+
+            [Fact]
+            public void WillIncludeThePackageWhenItDependsOnAPackageThatIsNotOriginallyIncluded()
+            {
+                var curator = new TestableRequiredDependencyPackageCurator();
+                var package = CreateStubGalleryPackage();
+                AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.0");
+                AddDependency(package, ShouldBeIncludedDependentPackageId, "3.0");
+
+                curator.Curate(package, null, commitChanges: true);
+
+                curator.StubCuratedFeedService.Verify(
+                    stub => stub.CreatedCuratedPackage(
+                        It.IsAny<CuratedFeed>(),
+                        It.Is<Package>(p => p.PackageRegistration.Id == StubGalleryPackageId),
+                        It.IsAny<bool>(),
+                        It.IsAny<bool>(),
+                        It.IsAny<string>(),
+                        It.IsAny<bool>()),
+                    Times.Once());
             }
 
             [Fact]
@@ -268,6 +292,7 @@ namespace NuGetGallery.PackageCurators
                     PackageRegistration = new PackageRegistration
                     {
                         Key = 0,
+                        Id = StubGalleryPackageId
                     },
                 };
             }
@@ -277,7 +302,14 @@ namespace NuGetGallery.PackageCurators
                 package.Dependencies.Add(new PackageDependency
                 {
                     Id = id,
-                    VersionSpec = versionSpec
+                    VersionSpec = versionSpec,
+                    Package = new Package
+                    {
+                        PackageRegistration = new PackageRegistration
+                        {
+                            Id = id
+                        }
+                    }
                 });
                 package.FlattenedDependencies = package.Dependencies.Flatten();
             }
