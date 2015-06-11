@@ -141,7 +141,7 @@ namespace NuGetGallery
             if (lastIndexTime.HasValue)
             {
                 // Where the registration has changed, or any of the packages have changed
-                set = set.Where(cp => (cp.LastUpdated > lastIndexTime) &&
+                set = set.Where(cp => (cp.LastUpdated > lastIndexTime) ||
                                       cp.PackageRegistration.Packages.Any(p => p.LastUpdated > lastIndexTime));
             }
             else
