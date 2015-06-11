@@ -44,6 +44,7 @@ namespace NuGetGallery
             var curatedPackageRegistration = curatedFeed.Packages
                 .SingleOrDefault(cp => cp.PackageRegistrationKey == package.PackageRegistration.Key);
 
+            var isFirstPackageInRegistration = false;
             if (curatedPackageRegistration == null)
             {
                 curatedPackageRegistration = new CuratedPackage
@@ -56,10 +57,33 @@ namespace NuGetGallery
                 };
 
                 curatedFeed.Packages.Add(curatedPackageRegistration);
+                isFirstPackageInRegistration = true;
             }
 
-            if (!curatedPackageRegistration.CuratedPackages.Any(p => p.Key == package.Key))
-                curatedPackageRegistration.CuratedPackages.Add(package);
+            if (!curatedPackageRegistration.CuratedPackageVersions.Any(p => p.PackageKey == package.Key))
+            {
+                var curatedPackageVersion = new CuratedPackageVersion
+                {
+                    CuratedFeed = curatedFeed,
+                    CuratedFeedKey = curatedFeed.Key,
+                    PackageRegistration = package.PackageRegistration,
+                    PackageRegistrationKey = package.PackageRegistrationKey,
+                    Package = package,
+                    PackageKey = package.Key,
+                };
+
+                // Make sure we set IsLatest + IsLatestStable for the first package, because
+                // UpdateIsLatest won't be able to see this registration if we don't commit.
+                // If it's the first package in the registration, then it's definitely the
+                // latest. It's the latest stable package only if it's not a pre-release.
+                if (isFirstPackageInRegistration)
+                {
+                    curatedPackageVersion.IsLatest = true;
+                    curatedPackageVersion.IsLatestStable = !package.IsPrerelease;
+                }
+
+                curatedPackageRegistration.CuratedPackageVersions.Add(curatedPackageVersion);
+            }
 
             if (commitChanges)
             {
@@ -159,7 +183,7 @@ namespace NuGetGallery
         {
             var packages = CuratedFeedRepository.GetAll()
                 .Where(cf => cf.Name == curatedFeedName)
-                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).SelectMany(cp => cp.CuratedPackages));
+                .SelectMany(cf => cf.Packages.Where(cp => cp.Included).SelectMany(cp => cp.CuratedPackageVersions).Select(cpv => cpv.Package));
 
             return packages;
         }
@@ -186,52 +210,64 @@ namespace NuGetGallery
         {
             var registrations = CuratedPackageRepository.GetAll()
                 .Where(cp => cp.PackageRegistration.Key == packageRegistration.Key)
-                .Include(cp => cp.CuratedPackages).ToList();
+                .Include(cp => cp.CuratedPackageVersions)
+                .ToList();
 
             foreach (var registration in registrations)
             {
-                registration.LatestPackage = null;
-                registration.LatestStablePackage = null;
-                registration.LastUpdated = DateTime.UtcNow;
+                foreach (var pv in registration.CuratedPackageVersions.Where(p => p.IsLatest || p.IsLatestStable))
+                {
+                    pv.IsLatest = false;
+                    pv.IsLatestStable = false;
+                    pv.LastUpdated = DateTime.UtcNow;
+                }
 
                 // If the last listed package was just unlisted, then we won't find another one
-                var latestPackage = FindPackage(registration.CuratedPackages, p => p.Listed);
+                var latestPackage = FindPackage(registration.CuratedPackageVersions, p => p.Package.Listed);
                 if (latestPackage != null)
                 {
-                    registration.LatestPackage = latestPackage;
-                    registration.LatestStablePackage = latestPackage;
-                    if (latestPackage.IsPrerelease)
+                    latestPackage.IsLatest = true;
+                    latestPackage.LastUpdated = DateTime.UtcNow;
+
+                    if (latestPackage.Package.IsPrerelease)
                     {
                         // If the newest uploaded package is a prerelease package, we need to find an older package that is 
                         // a release version and set it to IsLatest.
                         var latestReleasePackage =
-                            FindPackage(registration.CuratedPackages.Where(p => !p.IsPrerelease && p.Listed));
+                            FindPackage(registration.CuratedPackageVersions.Where(p => !p.Package.IsPrerelease && p.Package.Listed));
                         if (latestReleasePackage != null)
                         {
-                            registration.LatestStablePackage = latestReleasePackage;
+                            // We could have no release packages
+                            latestReleasePackage.IsLatestStable = true;
+                            latestReleasePackage.LastUpdated = DateTime.UtcNow;
                         }
+                    }
+                    else
+                    {
+                        // Only release versions are marked as IsLatestStable. 
+                        latestPackage.IsLatestStable = true;
                     }
                 }
             }
 
             if (commitChanges)
-                CuratedFeedRepository.CommitChanges();
+                CuratedPackageRepository.CommitChanges();
         }
 
-        private static Package FindPackage(IEnumerable<Package> packages, Func<Package, bool> predicate = null)
+        private static CuratedPackageVersion FindPackage(IEnumerable<CuratedPackageVersion> packages, Func<CuratedPackageVersion, bool> predicate = null)
         {
             if (predicate != null)
             {
                 packages = packages.Where(predicate);
             }
-            SemanticVersion version = packages.Max(p => new SemanticVersion(p.Version));
+            SemanticVersion version = packages.Max(p => new SemanticVersion(p.Package.Version));
 
             if (version == null)
             {
                 return null;
             }
             var v = version.ToString();
-            return packages.First(pv => pv.Version.Equals(v, StringComparison.OrdinalIgnoreCase));
+            return packages.First(pv => pv.Package.Version.Equals(v, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

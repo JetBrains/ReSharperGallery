@@ -30,7 +30,10 @@ namespace NuGetGallery.Areas.Admin.DynamicData
                 {
                     DropDownList1.Items.Add(new ListItem("[Not Set]", NullValueString));
                 }
-                PopulateListControl(DropDownList1);
+                var ddl = new DropDownList();
+                PopulateListControl(ddl);
+                var items = ddl.Items.Cast<ListItem>().OrderBy(li => li.Text);
+                DropDownList1.Items.AddRange(items.ToArray());
                 // Set the initial value if there is one
                 string initialValue = DefaultValue;
                 if (!String.IsNullOrEmpty(initialValue))

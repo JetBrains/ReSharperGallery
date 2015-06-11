@@ -201,11 +201,22 @@ namespace NuGetGallery
                 .HasRequired(cp => cp.PackageRegistration);
 
             modelBuilder.Entity<CuratedPackage>()
-                .HasMany<Package>(cpr => cpr.CuratedPackages)
-                .WithMany()
-                .Map(c => c.ToTable("CuratedPackageVersions")
-                           .MapLeftKey("CuratedPackageRegistrationKey")
-                           .MapRightKey("PackageKey"));
+                .HasMany<CuratedPackageVersion>(cpr => cpr.CuratedPackageVersions)
+                .WithRequired(cpv => cpv.CuratedPackage)
+                .HasForeignKey(cpv => cpv.CuratedPackageKey)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<CuratedPackageVersion>()
+                .HasKey(cpv => cpv.Key);
+
+            modelBuilder.Entity<CuratedPackageVersion>()
+                .HasRequired(cpv => cpv.CuratedFeed);
+
+            modelBuilder.Entity<CuratedPackageVersion>()
+                .HasRequired(cpv => cpv.PackageRegistration);
+
+            modelBuilder.Entity<CuratedPackageVersion>()
+                .HasRequired(cpv => cpv.Package);
         }
 #pragma warning restore 618
     }

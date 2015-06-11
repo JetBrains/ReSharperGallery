@@ -31,15 +31,22 @@ namespace NuGetGallery
           continue; // not satisfied by version
         var curatedFeedService = GetService<ICuratedFeedService>();
         var curatedFeed = curatedFeedService.GetFeedByName(curatedFeedData.Name, includePackages: true);
-        if (DependenciesAreCurated(galleryPackage.Dependencies.Except(new[] { dependency }).ToList(), curatedFeed))
+        foreach (var d in galleryPackage.Dependencies.Except(new[] { dependency }))
         {
           curatedFeedService.CreatedCuratedPackage(
             curatedFeed,
-            galleryPackage,
+            d.Package,
             included: true,
             automaticallyCurated: true,
             commitChanges: commitChanges);
         }
+
+        curatedFeedService.CreatedCuratedPackage(
+          curatedFeed,
+          galleryPackage,
+          included: true,
+          automaticallyCurated: true,
+          commitChanges: commitChanges);
       }
     }
 

@@ -94,6 +94,9 @@ namespace NuGetGallery.Services
             public Package StubPackage { get; set; }
             public Package StubPackage_IncompatibleVersion { get; set; }
             public Package StubPackage_ForFeed1_NotIncluded { get; set; }
+            public CuratedPackageVersion StubCuratedPackageVersion { get; set; }
+            public CuratedPackageVersion StubCuratedPackageVersion_IncompatibleVersion { get; set; }
+            public CuratedPackageVersion StubCuratedPackageVersion_ForFeed1_NotIncluded { get; set; }
             public CuratedFeed StubCuratedFeed { get; set; }
             public CuratedFeed StubCuratedFeed2 { get; set; }
             public CuratedPackage StubCuratedPackageRegistration_ForFeed1 { get; set; }
@@ -275,7 +278,7 @@ namespace NuGetGallery.Services
 
                 service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
-                service.StubCuratedFeedRepository.Verify(r => r.CommitChanges(), Times.Once());
+                service.StubCuratedPackageRepository.Verify(r => r.CommitChanges(), Times.Once());
             }
 
             [Fact]
@@ -283,18 +286,43 @@ namespace NuGetGallery.Services
             {
                 var service = new TestableCuratedFeedService();
 
-                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage);
-                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage_IncompatibleVersion);
+                var stubCuratedPackageVersion = new CuratedPackageVersion
+                {
+                    Key = 101,
+                    Package = service.StubPackage,
+                    PackageKey = service.StubPackage.Key,
+                    CuratedFeed = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeed,
+                    CuratedFeedKey = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeedKey,
+                    CuratedPackage = service.StubCuratedPackageRegistration_ForFeed1,
+                    CuratedPackageKey = service.StubCuratedPackageRegistration_ForFeed1.Key,
+                    PackageRegistration = service.StubPackage.PackageRegistration,
+                    PackageRegistrationKey = service.StubPackage.PackageRegistrationKey
+                };
+                var stubCuratedPackageVersion_IncompatibleVersion = new CuratedPackageVersion
+                {
+                    Key = 101,
+                    Package = service.StubPackage_IncompatibleVersion,
+                    PackageKey = service.StubPackage_IncompatibleVersion.Key,
+                    CuratedFeed = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeed,
+                    CuratedFeedKey = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeedKey,
+                    CuratedPackage = service.StubCuratedPackageRegistration_ForFeed1,
+                    CuratedPackageKey = service.StubCuratedPackageRegistration_ForFeed1.Key,
+                    PackageRegistration = service.StubPackage_IncompatibleVersion.PackageRegistration,
+                    PackageRegistrationKey = service.StubPackage_IncompatibleVersion.PackageRegistrationKey
+                };
+
+                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Add(stubCuratedPackageVersion);
+                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Add(stubCuratedPackageVersion_IncompatibleVersion);
 
                 service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
-                Assert.Equal(service.StubPackage_IncompatibleVersion, service.StubCuratedPackageRegistration_ForFeed1.LatestPackage);
+                Assert.Same(service.StubPackage_IncompatibleVersion, service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Single(cpv => cpv.IsLatest).Package);
 
-                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Remove(service.StubPackage_IncompatibleVersion);
+                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Remove(stubCuratedPackageVersion_IncompatibleVersion);
 
                 service.UpdateIsLatest(service.StubPackageRegistration_ForFeed1, true);
 
-                Assert.Equal(service.StubPackage, service.StubCuratedPackageRegistration_ForFeed1.LatestPackage);
+                Assert.Same(service.StubPackage, service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Single(cpv => cpv.IsLatest).Package);
             }
         }
 
@@ -304,8 +332,34 @@ namespace NuGetGallery.Services
             public void WillOnlyReturnPackageVersionsForIncludedPackageRegistrations()
             {
                 var service = new TestableCuratedFeedService();
-                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage);
-                service.StubCuratedPackageRegistration_ForFeed1_NotIncluded.CuratedPackages.Add(service.StubPackage_ForFeed1_NotIncluded);
+
+                var stubCuratedPackageVersion = new CuratedPackageVersion
+                {
+                    Key = 101,
+                    Package = service.StubPackage,
+                    PackageKey = service.StubPackage.Key,
+                    CuratedFeed = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeed,
+                    CuratedFeedKey = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeedKey,
+                    CuratedPackage = service.StubCuratedPackageRegistration_ForFeed1,
+                    CuratedPackageKey = service.StubCuratedPackageRegistration_ForFeed1.Key,
+                    PackageRegistration = service.StubPackage.PackageRegistration,
+                    PackageRegistrationKey = service.StubPackage.PackageRegistrationKey
+                };
+                var stubCuratedPackageVersion_ForFeed1_NotIncluded = new CuratedPackageVersion
+                {
+                    Key = 101,
+                    Package = service.StubPackage_ForFeed1_NotIncluded,
+                    PackageKey = service.StubPackage_ForFeed1_NotIncluded.Key,
+                    CuratedFeed = service.StubCuratedPackageRegistration_ForFeed1_NotIncluded.CuratedFeed,
+                    CuratedFeedKey = service.StubCuratedPackageRegistration_ForFeed1_NotIncluded.CuratedFeedKey,
+                    CuratedPackage = service.StubCuratedPackageRegistration_ForFeed1_NotIncluded,
+                    CuratedPackageKey = service.StubCuratedPackageRegistration_ForFeed1_NotIncluded.Key,
+                    PackageRegistration = service.StubPackage_ForFeed1_NotIncluded.PackageRegistration,
+                    PackageRegistrationKey = service.StubPackage_ForFeed1_NotIncluded.PackageRegistrationKey
+                };
+
+                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Add(stubCuratedPackageVersion);
+                service.StubCuratedPackageRegistration_ForFeed1_NotIncluded.CuratedPackageVersions.Add(stubCuratedPackageVersion_ForFeed1_NotIncluded);
 
                 var packages = service.GetPackages(service.StubCuratedFeed.Name).ToList();
 
@@ -318,7 +372,21 @@ namespace NuGetGallery.Services
             {
                 // I.e. Not all versions for a registration
                 var service = new TestableCuratedFeedService();
-                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackages.Add(service.StubPackage);
+
+                var stubCuratedPackageVersion = new CuratedPackageVersion
+                {
+                    Key = 101,
+                    Package = service.StubPackage,
+                    PackageKey = service.StubPackage.Key,
+                    CuratedFeed = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeed,
+                    CuratedFeedKey = service.StubCuratedPackageRegistration_ForFeed1.CuratedFeedKey,
+                    CuratedPackage = service.StubCuratedPackageRegistration_ForFeed1,
+                    CuratedPackageKey = service.StubCuratedPackageRegistration_ForFeed1.Key,
+                    PackageRegistration = service.StubPackage.PackageRegistration,
+                    PackageRegistrationKey = service.StubPackage.PackageRegistrationKey
+                };
+
+                service.StubCuratedPackageRegistration_ForFeed1.CuratedPackageVersions.Add(stubCuratedPackageVersion);
 
                 var packages = service.GetPackages(service.StubCuratedFeed.Name).ToList();
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace NuGetGallery
 {
@@ -9,8 +8,7 @@ namespace NuGetGallery
     {
         public CuratedPackage()
         {
-            CuratedPackages = new HashSet<Package>();
-            LastUpdated = DateTime.UtcNow;
+            CuratedPackageVersions = new HashSet<CuratedPackageVersion>();
         }
 
         public CuratedFeed CuratedFeed { get; set; }
@@ -24,14 +22,9 @@ namespace NuGetGallery
         public string Notes { get; set; }
         public int Key { get; set; }
 
-        public virtual ICollection<Package> CuratedPackages { get; set; }
-
-        public Package LatestPackage { get; set; }
-        public int? LatestPackageKey { get; set; }
-
-        public Package LatestStablePackage { get; set; }
-        public int? LatestStablePackageKey { get; set; }
-
-        public DateTime LastUpdated { get; set; }
+        // If CuratedPackage were called CuratedPackageRegistration, it would
+        // then make sense for this to be a collection of CuratedPackage and
+        // called CuratedPackages
+        public virtual ICollection<CuratedPackageVersion> CuratedPackageVersions { get; set; }
     }
 }

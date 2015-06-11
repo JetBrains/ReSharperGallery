@@ -21,7 +21,7 @@ namespace NuGetGallery
                 {
                     var indexingService = new LuceneIndexingService(
                         new EntityRepository<Package>(context),
-                        new EntityRepository<CuratedPackage>(context),
+                        new EntityRepository<CuratedPackageVersion>(context),
                         LuceneCommon.GetDirectory(location),
                         null);
                     indexingService.UpdateIndex();
