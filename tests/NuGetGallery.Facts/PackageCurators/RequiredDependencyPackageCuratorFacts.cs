@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Moq;
 using Xunit;
 using Xunit.Extensions;
@@ -10,6 +11,7 @@ namespace NuGetGallery.PackageCurators
         public class TestableRequiredDependencyPackageCurator : RequiredDependencyPackageCurator
         {
             public const string RequiredDependencyPackageId = "RequiredDependency";
+            public const string PackageDependencyPackageId = "PackageDependency";
 
             public TestableRequiredDependencyPackageCurator()
             {
@@ -26,11 +28,31 @@ namespace NuGetGallery.PackageCurators
                 StubCuratedFeedService
                     .Setup(stub => stub.GetFeedByName(It.IsAny<string>(), It.IsAny<bool>()))
                     .Returns(StubCuratedFeed);
+
+                var packageRegistration = new PackageRegistration
+                {
+                    Key = 23,
+                    Id = PackageDependencyPackageId,
+                };
+                var package = new Package
+                {
+                    Key = 14,
+                    PackageRegistrationKey = packageRegistration.Key,
+                    PackageRegistration = packageRegistration,
+                    Version = "3.0.0"
+                };
+                packageRegistration.Packages.Add(package);
+
+                StubPackageRegistrationRepository = new Mock<IEntityRepository<PackageRegistration>>();
+                StubPackageRegistrationRepository
+                    .Setup(stub => stub.GetAll())
+                    .Returns(new[] { packageRegistration}.AsQueryable());
             }
 
             public CuratedFeed StubCuratedFeed { get; private set; }
             public FakeEntitiesContext FakeEntitiesContext { get; private set; }
             public Mock<ICuratedFeedService> StubCuratedFeedService { get; private set; }
+            public Mock<IEntityRepository<PackageRegistration>> StubPackageRegistrationRepository { get; private set; }
 
             protected override T GetService<T>()
             {
@@ -44,6 +66,11 @@ namespace NuGetGallery.PackageCurators
                     return (T) StubCuratedFeedService.Object;
                 }
 
+                if (typeof (T) == typeof (IEntityRepository<PackageRegistration>))
+                {
+                    return (T) StubPackageRegistrationRepository.Object;
+                }
+
                 throw new Exception(string.Format("Tried to get an unexpected service - {0}", typeof(T)));
             }
         }
@@ -51,7 +78,6 @@ namespace NuGetGallery.PackageCurators
         public class TheCurateMethod
         {
             private const string StubGalleryPackageId = "GalleryPackage";
-            private const string ShouldBeIncludedDependentPackageId = "ShouldBeIncludedDependency";
 
             [Fact]
             public void WillNotIncludeThePackageWhenTheFeedDoesNotExist()
@@ -225,14 +251,14 @@ namespace NuGetGallery.PackageCurators
                 var curator = new TestableRequiredDependencyPackageCurator();
                 var package = CreateStubGalleryPackage();
                 AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.0");
-                AddDependency(package, ShouldBeIncludedDependentPackageId, "3.0");
+                AddDependency(package, TestableRequiredDependencyPackageCurator.PackageDependencyPackageId, "3.0");
 
                 curator.Curate(package, null, commitChanges: true);
 
                 curator.StubCuratedFeedService.Verify(
                     stub => stub.CreatedCuratedPackage(
                         It.IsAny<CuratedFeed>(),
-                        It.Is<Package>(p => p.PackageRegistration.Id == ShouldBeIncludedDependentPackageId),
+                        It.Is<Package>(p => p.PackageRegistration.Id == TestableRequiredDependencyPackageCurator.PackageDependencyPackageId),
                         It.IsAny<bool>(),
                         It.IsAny<bool>(),
                         It.IsAny<string>(),
@@ -246,7 +272,7 @@ namespace NuGetGallery.PackageCurators
                 var curator = new TestableRequiredDependencyPackageCurator();
                 var package = CreateStubGalleryPackage();
                 AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.0");
-                AddDependency(package, ShouldBeIncludedDependentPackageId, "3.0");
+                AddDependency(package, TestableRequiredDependencyPackageCurator.PackageDependencyPackageId, "3.0");
 
                 curator.Curate(package, null, commitChanges: true);
 
@@ -259,29 +285,6 @@ namespace NuGetGallery.PackageCurators
                         It.IsAny<string>(),
                         It.IsAny<bool>()),
                     Times.Once());
-            }
-
-            [Fact]
-            public void WillNotIncludeThePackageWhenItDependsOnAPackageThatIsExcludedInTheFeed()
-            {
-                var curator = new TestableRequiredDependencyPackageCurator();
-                curator.StubCuratedFeed.Packages.Add(new CuratedPackage { AutomaticallyCurated = false, Included = false, PackageRegistration = new PackageRegistration { Id = "ManuallyExcludedPackage" } });
-
-                var package = CreateStubGalleryPackage();
-                AddDependency(package, TestableRequiredDependencyPackageCurator.RequiredDependencyPackageId, "3.0");
-                AddDependency(package, "ManuallyExcludedPackage", "3.0");
-
-                curator.Curate(package, null, commitChanges: true);
-
-                curator.StubCuratedFeedService.Verify(
-                    stub => stub.CreatedCuratedPackage(
-                        It.IsAny<CuratedFeed>(),
-                        It.IsAny<Package>(),
-                        It.IsAny<bool>(),
-                        It.IsAny<bool>(),
-                        It.IsAny<string>(),
-                        It.IsAny<bool>()),
-                    Times.Never());
             }
 
             private static Package CreateStubGalleryPackage()

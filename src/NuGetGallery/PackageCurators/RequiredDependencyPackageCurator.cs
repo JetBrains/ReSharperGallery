@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NuGet;
@@ -15,38 +17,48 @@ namespace NuGetGallery
       if (!galleryPackage.Dependencies.Any())
         return;
 
-      var curatedFeedNames = GetService<IEntitiesContext>().CuratedFeeds
+      var curatedFeedService = GetService<ICuratedFeedService>();
+
+      var entitiesContext = GetService<IEntitiesContext>();
+      var curatedFeeds = entitiesContext.CuratedFeeds
         .ToList()
-        .Select(feed => curatedFeedNameParser.Match(feed.Name))
-        .Where(match => match.Success)
-        .Select(match => new { Name = match.Value, Id = match.Groups["name"].Value, Version = SemanticVersion.ParseOptionalVersion(match.Groups["version"].Value)})
+        .Select(feed => new { Match = curatedFeedNameParser.Match(feed.Name), Feed = feed })
+        .Where(x => x.Match.Success)
+        .Select(x => new
+        {
+          Name = x.Match.Value,
+          Id = x.Match.Groups["name"].Value,
+          Version = SemanticVersion.ParseOptionalVersion(x.Match.Groups["version"].Value),
+          x.Feed
+        })
         .ToList();
 
-      foreach (var dependency in galleryPackage.Dependencies)
-      foreach (var curatedFeedData in curatedFeedNames)
-      {
-        if (!dependency.Id.Equals(curatedFeedData.Id, StringComparison.OrdinalIgnoreCase))
-          continue; // not satisfied by name
-        if (!CuratedFeedWantsAllVersions(curatedFeedData.Version) && !CuratedFeedSatisfiesDependency(curatedFeedData.Version, dependency))
-          continue; // not satisfied by version
-        var curatedFeedService = GetService<ICuratedFeedService>();
-        var curatedFeed = curatedFeedService.GetFeedByName(curatedFeedData.Name, includePackages: true);
-        foreach (var d in galleryPackage.Dependencies.Except(new[] { dependency }))
-        {
-          curatedFeedService.CreatedCuratedPackage(
-            curatedFeed,
-            d.Package,
-            included: true,
-            automaticallyCurated: true,
-            commitChanges: commitChanges);
-        }
+      var feedDependencies = (from d in galleryPackage.Dependencies
+        from cf in curatedFeeds
+        where d.Id.Equals(cf.Id, StringComparison.OrdinalIgnoreCase)
+              && (CuratedFeedWantsAllVersions(cf.Version) || CuratedFeedSatisfiesDependency(cf.Version, d))
+        select new {Dependency = d, cf.Feed, FeedId = cf.Id}).ToList();
 
-        curatedFeedService.CreatedCuratedPackage(
-          curatedFeed,
-          galleryPackage,
-          included: true,
-          automaticallyCurated: true,
-          commitChanges: commitChanges);
+      // Packages that should also be curated to satisfy the dependencies
+      var feedDependencyNames = feedDependencies.Select(fd => fd.FeedId).ToList();
+      var packageDependencies = (from d in galleryPackage.Dependencies
+        where !feedDependencyNames.Contains(d.Id, StringComparer.OrdinalIgnoreCase)
+        from p in GetMatchingPackages(d.Id, d.VersionSpec)
+        select p).ToList();
+
+      foreach (var feedDependency in feedDependencies)
+      {
+        var curatedFeed = feedDependency.Feed;
+
+        curatedFeedService.CreatedCuratedPackage(curatedFeed, galleryPackage, 
+          included: true, automaticallyCurated: true, commitChanges: commitChanges);
+
+        // Now add all packageDependencies
+        foreach (var packageDependency in packageDependencies)
+        {
+          curatedFeedService.CreatedCuratedPackage(curatedFeed, packageDependency, included: true,
+            automaticallyCurated: true, commitChanges: commitChanges);
+        }
       }
     }
 
@@ -68,6 +80,22 @@ namespace NuGetGallery
 
       return dependencyVersionSpec.Satisfies(curatedFeedVersion)
         || StripPatchLevel(dependencyVersionSpec).Satisfies(curatedFeedVersion);
+    }
+
+    private IEnumerable<Package> GetMatchingPackages(string packageRegistrationId, string requiredVersionSpec)
+    {
+      var packageRegistrationRepository = GetService<IEntityRepository<PackageRegistration>>();
+      var candidatePackages = packageRegistrationRepository.GetAll()
+        .Include(pr => pr.Packages)
+        .Where(pr => pr.Id == packageRegistrationId)
+        .SelectMany(pr => pr.Packages).ToList();
+
+      var versionSpec = VersionUtility.ParseVersionSpec(requiredVersionSpec);
+      var dependencies = from p in candidatePackages
+        where versionSpec.Satisfies(new SemanticVersion(p.Version))
+        select p;
+
+      return dependencies;
     }
 
     private static IVersionSpec StripPatchLevel(IVersionSpec dependencyVersionSpec)
