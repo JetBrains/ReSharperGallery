@@ -88,7 +88,9 @@ namespace NuGetGallery
       var candidatePackages = packageRegistrationRepository.GetAll()
         .Include(pr => pr.Packages)
         .Where(pr => pr.Id == packageRegistrationId)
-        .SelectMany(pr => pr.Packages).ToList();
+        .SelectMany(pr => pr.Packages)
+        .Include(p => p.PackageRegistration)
+        .ToList();
 
       var versionSpec = VersionUtility.ParseVersionSpec(requiredVersionSpec);
       var dependencies = from p in candidatePackages
