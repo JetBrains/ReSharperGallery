@@ -87,11 +87,11 @@ nav.main ul li {
 }
 
 nav.main ul li.current a {
-    background-color: #f3ecf0;
+    background-color: #fff;
     border: 1px solid #4b4b54;
     border-bottom: none;
     border-top: 1px solid #4b4b54;
-    color: #7e255b;
+    color: #000;
     height: 46px;
     line-height: 44px;
     position: relative;
