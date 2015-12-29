@@ -1287,8 +1287,7 @@ ul.accordian {
     vertical-align: bottom;
 }
 
-.nucon-jb-w {
-    background: url('images/icons/jb_32_mono_w.png');
+.nucon-jb-w, .nucon-jb-b {
     width: 32px;
     height: 32px;
     padding: 0;
@@ -1297,4 +1296,10 @@ ul.accordian {
     margin-right: 3px;
     display: inline-block;
     vertical-align: middle;
+}
+.nucon-jb-w {
+    background: url('images/icons/jb_32_mono_w.png');
+}
+.nucon-jb-b {
+    background: url('images/icons/jb_32_mono_b.png');
 }

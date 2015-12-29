@@ -1116,6 +1116,7 @@
     <Compile Include="Views\NuGetViewBase.cs" />
     <Content Include="Content\Images\icons\jb_32_mono_w.png" />
     <Content Include="Content\Images\packageResharper.png" />
+    <Content Include="Content\Logos\dnf.png" />
     <Content Include="Views\Shared\LayoutFooter.cshtml" />
     <Content Include="Views\Shared\SiteMenu.cshtml">
       <SubType>Code</SubType>
@@ -1178,7 +1179,6 @@
     <Content Include="Content\Images\errorPage.png" />
     <Content Include="Content\Images\JBlogo.png" />
     <Content Include="Content\Images\resharperlogo.png" />
-    <Content Include="Content\Logos\outercurve.png" />
     <Content Include="Content\Images\icons\nuget_32_mono_b.png" />
     <Content Include="Content\Images\icons\nuget_32_mono_w.png" />
     <Content Include="Content\Images\YourPackage.png" />
