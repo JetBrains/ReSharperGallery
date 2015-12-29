@@ -194,6 +194,7 @@ button.undo-button {
     border-radius: 3px;
     margin: 10px auto;
     padding: 20px 10px 0 10px;
+    font-family: "Gotham SSm A","Gotham SSm B",Helvetica,Arial,sans-serif;
 }
 
 .featured div {
