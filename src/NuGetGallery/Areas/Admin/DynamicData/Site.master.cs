@@ -14,7 +14,7 @@ namespace NuGetGallery.Areas.Admin.DynamicData
         protected override void OnInit(EventArgs e)
         {
             // Cheap and easy DI. Not too clean :)
-            Config = NuGetGallery.Container.Kernel.Get<AppConfiguration>();
+            Config = NuGetGallery.Container.Kernel.Get<IAppConfiguration>();
 
             if (!Page.User.Identity.IsAuthenticated)
             {
