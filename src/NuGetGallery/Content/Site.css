@@ -229,56 +229,6 @@ nav, section {
     color: #ff9600;
 }
 
-/* Logo */
-
-#logo {
-    float: left;
-    padding: 20px 20px 0 0;
-}
-
-#logo a {
-    background: url(../Content/Images/resharperlogo.png) no-repeat;
-    display: block;
-    height: 75px;
-    margin: 0;
-    padding: 0;
-    text-indent: -9999px;
-    width: 480px;
-}
-
-/* User Info */
-
-.user-display {
-    color: #fff;
-    font-weight: 600;
-    float: right;
-    margin-top: 80px;
-    padding-right: 7px;
-}
-
-.user-display a {
-    color: #fff;
-    font-weight: 600;
-}
-
-.user-display a:hover { text-decoration: underline; }
-
-/* Body */
-
-#body {
-    padding-bottom: 14px;
-    padding-top: 20px;
-}
-
-#sideColumn {
-    float: left;
-    width: 25%;
-}
-
-    #pageSearchBox #searchBoxInput {
-        width: 265px;
-    }
-
 
 /* Logo */
 
@@ -288,19 +238,23 @@ nav, section {
 }
 
     #logo a {
-        background: url(../Content/Images/resharperlogo.png) no-repeat;
-        display: block;
-        height: 75px;
-        margin: 0;
-        padding: 0;
-        text-indent: -9999px;
-        width: 480px;
+      color: #313131;
+      text-decoration: none;
+      background: url(../Content/Images/resharperlogo.png) no-repeat;
+      display: block;
+      height: 75px;
+      line-height: 75px;
+      margin: 0;
+      padding: 0 0 0 90px;
+      font-size: 75px;
+      font-weight: 600;
+      font-family: "Gotham SSm A", "Gotham SSm B", Helvetica, Arial, sans-serif;
     }
 
 /* User Info */
 
 .user-display {
-    color: #fff;
+    color: #4b4b54;
     font-weight: 600;
     float: right;
     margin-top: 80px;
@@ -308,7 +262,7 @@ nav, section {
 }
 
     .user-display a {
-        color: #fff;
+        color: #4b4b54;
         font-weight: 600;
     }
 
