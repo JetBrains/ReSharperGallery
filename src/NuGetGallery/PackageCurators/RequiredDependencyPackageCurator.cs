@@ -35,7 +35,7 @@ namespace NuGetGallery
 
       var feedDependencies = (from d in galleryPackage.Dependencies
         from cf in curatedFeeds
-        where d.Id.Equals(cf.Id, StringComparison.OrdinalIgnoreCase)
+        where string.Equals(d.Id, cf.Id, StringComparison.OrdinalIgnoreCase)
               && (CuratedFeedWantsAllVersions(cf.Version) || CuratedFeedSatisfiesDependency(cf.Version, d))
         select new {Dependency = d, cf.Feed, FeedId = cf.Id}).ToList();
 
@@ -87,10 +87,13 @@ namespace NuGetGallery
       var packageRegistrationRepository = GetService<IEntityRepository<PackageRegistration>>();
       var candidatePackages = packageRegistrationRepository.GetAll()
         .Include(pr => pr.Packages)
-        .Where(pr => pr.Id == packageRegistrationId)
+        .Where(pr => pr.Id.Equals(packageRegistrationId, StringComparison.OrdinalIgnoreCase))
         .SelectMany(pr => pr.Packages)
         .Include(p => p.PackageRegistration)
         .ToList();
+
+      if (requiredVersionSpec == null)
+        return candidatePackages;
 
       var versionSpec = VersionUtility.ParseVersionSpec(requiredVersionSpec);
       var dependencies = from p in candidatePackages
