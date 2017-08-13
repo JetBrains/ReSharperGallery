@@ -7,7 +7,7 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <title><%: Config.Brand %> Database Administration</title>
-        <link href="//cloud.typography.com/7463094/664148/css/fonts.css" rel="stylesheet" />
+        <link href="https://resources.jetbrains.com/storage/ui/fonts/fonts.css" rel="stylesheet" />
         <%: Styles.Render("~/Content/css") %>
         <link href="~/favicon.ico" runat="server" rel="shortcut icon" type="image/x-icon" />
         <%: Scripts.Render("~/Scripts/modernizr") %>
