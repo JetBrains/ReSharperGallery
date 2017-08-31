@@ -1,3 +1,5 @@
+[![internal JetBrains project](http://jb.gg/badges/internal-flat-square.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+
 [NuGet Gallery](http://nuget.org/) - Where packages are found 
 =======================================================================
 This is an implementation of the NuGet Gallery and API. This serves as the back-end and community 
